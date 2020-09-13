@@ -16,10 +16,14 @@ import (
 type Config struct {
 	Exec string
 	Args []string
+	Env  []string
 }
 
 // Run lighthouse task.
 func (cfg Config) Run(page string, report io.Writer) error {
+	if cfg.Exec == "" {
+		cfg.Exec = "lighthouse"
+	}
 	var _, errURL = url.Parse(page)
 	if errURL != nil {
 		return fmt.Errorf("page URL: %w", errURL)
@@ -29,14 +33,17 @@ func (cfg Config) Run(page string, report io.Writer) error {
 	var cmd = &exec.Cmd{
 		Path: cfg.Exec,
 		Args: cfg.args(
-			"--output", "json",
+			cfg.Exec,
 			page,
+			"--output", "json",
 		),
 		Stdout: stdout,
 		Stderr: stderr,
+		Env:    cfg.Env,
 	}
+	_, _ = fmt.Fprintf(stderr, "%s\n\n", cmd)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("running lighthouse tool: %w: ", err)
+		return fmt.Errorf("running lighthouse tool: %w\n%s", err, stderr)
 	}
 	var _, errCopy = stdout.WriteTo(report)
 	if errCopy != nil {

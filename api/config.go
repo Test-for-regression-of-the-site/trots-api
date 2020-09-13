@@ -1,5 +1,9 @@
 package api
 
+import (
+	"github.com/Test-for-regression-of-the-site/trots-api/lighthouse"
+)
+
 // Config stores the API settings.
 type Config struct {
 	// Addr is the serving address.
@@ -7,6 +11,8 @@ type Config struct {
 	// Logger creates the a named logger.
 	// Name can be ignored or prefix the log entries.
 	Logger func(name string) Logger
+
+	Lighthouse lighthouse.Config
 }
 
 // Option sets config fields.
