@@ -1,0 +1,17 @@
+FROM golang:1.15 as builder
+
+RUN go env -w GO111MODULE=on
+
+WORKDIR /project
+
+COPY go.sum go.sum
+COPY go.mod go.mod
+RUN go mod download
+
+COPY . .
+RUN mkdir -p target && go build -o ./target ./cmd/...
+
+FROM ubuntu:18.04 
+
+COPY --from=builder /project/target /usr/local/bin
+ENTRYPOINT ["api"]
