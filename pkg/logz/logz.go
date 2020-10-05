@@ -22,5 +22,6 @@ func NewProd(wr io.Writer) *zap.SugaredLogger {
 	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
 	var console = zapcore.NewConsoleEncoder(encoderCfg)
 	var core = zapcore.NewCore(console, zapcore.AddSync(wr), zap.InfoLevel)
+
 	return zap.New(core).Sugar()
 }
