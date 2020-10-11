@@ -11,7 +11,7 @@ import (
 func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 	var id = uuid.New().String()
 
-	saveTask := func(containerId string, reportBuffer *bytes.Buffer) {
+	completeTask := func(containerId string, reportBuffer *bytes.Buffer) {
 		// TODO: Put into mongo
 	}
 
@@ -26,7 +26,7 @@ func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 		if lighthouseError != nil {
 			return
 		}
-		defer saveTask(containerId, reportBuffer)
+		defer completeTask(containerId, reportBuffer)
 	}
 
 	for _, url := range request.Links {
