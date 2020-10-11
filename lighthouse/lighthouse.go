@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -15,13 +16,7 @@ import (
 	"strings"
 )
 
-type ExecutionConfiguration struct {
-	Image       string
-	Arguments   []string
-	Environment []string
-}
-
-func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, reportWriter io.Writer) error {
+func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) error {
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"
 	}
@@ -59,12 +54,8 @@ func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, re
 	var stdError = &bytes.Buffer{}
 	var stdOut = &bytes.Buffer{}
 	var command = &exec.Cmd{
-		Path: configuration.Image,
-		Args: configuration.formatArguments(
-			configuration.Image,
-			link,
-			"--output", "json",
-		),
+		Path:   configuration.Image,
+		Args:   formatArguments(configuration, configuration.Image, link, "--output", "json"),
 		Stdout: stdOut,
 		Stderr: stdError,
 		Env:    configuration.Environment,
@@ -80,10 +71,11 @@ func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, re
 	if validationError := validateJson(stdOut.Bytes()); validationError != nil {
 		return fmt.Errorf("Validation error: %w", validationError)
 	}
+
 	return nil
 }
 
-func (configuration ExecutionConfiguration) formatArguments(extra ...string) []string {
+func formatArguments(configuration configuration.LighthouseExecutionConfiguration, extra ...string) []string {
 	var length = len(configuration.Arguments)
 	return append(configuration.Arguments[:length:length], extra...)
 }

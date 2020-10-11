@@ -1,10 +1,12 @@
 package configuration
 
-import (
-	"github.com/Test-for-regression-of-the-site/trots-api/lighthouse"
-)
+type LighthouseExecutionConfiguration struct {
+	Image       string
+	Arguments   []string
+	Environment []string
+}
 
 type Configuration struct {
 	Address    string
-	Lighthouse lighthouse.ExecutionConfiguration
+	Lighthouse LighthouseExecutionConfiguration
 }
