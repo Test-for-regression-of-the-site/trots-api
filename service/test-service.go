@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
-	"github.com/Test-for-regression-of-the-site/trots-api/lighthouse"
 	model "github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/google/uuid"
 	"log"
@@ -23,7 +22,7 @@ func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 			Arguments:   nil,
 			Environment: nil,
 		}
-		containerId, lighthouseError := lighthouse.ExecuteLighthouseTask(lighthouseExecutionConfiguration, url, reportBuffer)
+		containerId, lighthouseError := executeLighthouseTask(lighthouseExecutionConfiguration, url, reportBuffer)
 		if lighthouseError != nil {
 			return
 		}

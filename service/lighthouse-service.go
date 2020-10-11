@@ -1,4 +1,4 @@
-package lighthouse
+package service
 
 import (
 	"bufio"
@@ -16,7 +16,7 @@ import (
 	"strings"
 )
 
-func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) (string, error) {
+func executeLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) (string, error) {
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"
 	}
