@@ -16,9 +16,8 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 		}
 		return
 	}
-	if renderError := render.Render(writer, request, response); renderError != nil {
-		log.Printf(renderError.Error())
-	}
+	service.RunTest(*testRequest.TestRequestPayload)
+	writer.WriteHeader(http.StatusOK)
 }
 
 func getTestReports(writer http.ResponseWriter, request *http.Request) {
