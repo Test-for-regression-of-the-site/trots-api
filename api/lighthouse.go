@@ -26,7 +26,7 @@ func (req *createTaskRequest) Timestamp() time.Time {
 }
 
 type lighthouseTasks struct {
-	cfg   lighthouse.Config
+	cfg   lighthouse.ExecutionConfiguration
 	mu    sync.RWMutex
 	tasks map[string]*task
 }
@@ -72,7 +72,7 @@ func (lt *lighthouseTasks) AddTask(rw http.ResponseWriter, req *http.Request) {
 
 			task.running = true
 			defer func() { task.running = false }()
-			task.err = lt.cfg.Run(task.page, task.report)
+			task.err = lt.cfg.ExecuteLighthouse(task.page, task.report)
 		}()
 	}
 }

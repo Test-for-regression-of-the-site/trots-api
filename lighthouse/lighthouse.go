@@ -1,4 +1,3 @@
-// Package lighthouse provides lighthouse runners.
 package lighthouse
 
 import (
@@ -10,79 +9,85 @@ import (
 	"net/url"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
-// Config describes lighthouse runner settings.
-type Config struct {
-	Exec string
-	Args []string
-	Env  []string
+type ExecutionConfiguration struct {
+	Image       string
+	Arguments   []string
+	Environment []string
 }
 
-// Run lighthouse task.
-func (cfg Config) Run(page string, report io.Writer) error {
-	if cfg.Exec == "" {
-		cfg.Exec = "lighthouse"
+type Task struct {
+	sync.RWMutex
+	Done         chan struct{}
+	Running      bool
+	Error        error
+	Url          string
+	ReportBuffer *bytes.Buffer
+}
+
+func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, reportWriter io.Writer) error {
+	if configuration.Image == "" {
+		configuration.Image = "lighthouse"
 	}
-	var _, errURL = url.Parse(page)
-	if errURL != nil {
-		return fmt.Errorf("page URL: %w", errURL)
+	var _, urlError = url.Parse(link)
+	if urlError != nil {
+		return fmt.Errorf("URL error: %w", urlError)
 	}
-	var stderr = &bytes.Buffer{}
-	var stdout = &bytes.Buffer{}
-	var cmd = &exec.Cmd{
-		Path: cfg.Exec,
-		Args: cfg.args(
-			cfg.Exec,
-			page,
+	var stdError = &bytes.Buffer{}
+	var stdOut = &bytes.Buffer{}
+	var command = &exec.Cmd{
+		Path: configuration.Image,
+		Args: configuration.formatArguments(
+			configuration.Image,
+			link,
 			"--output", "json",
 		),
-		Stdout: stdout,
-		Stderr: stderr,
-		Env:    cfg.Env,
+		Stdout: stdOut,
+		Stderr: stdError,
+		Env:    configuration.Environment,
 	}
-	_, _ = fmt.Fprintf(stderr, "%s\n\n", cmd)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("running lighthouse tool: %w\n%s", err, stderr)
+	_, _ = fmt.Fprintf(stdError, "%s\n\n", command)
+	if commandRunError := command.Run(); commandRunError != nil {
+		return fmt.Errorf("Running lighthouse container error: %w\n%s", commandRunError, stdError)
 	}
-	var _, errCopy = stdout.WriteTo(report)
-	if errCopy != nil {
-		var msg = parseErrorMessage(stderr.Bytes())
-		return fmt.Errorf("writing report: %w: %s", errCopy, msg)
+	var _, stdOutWritingError = stdOut.WriteTo(reportWriter)
+	if stdOutWritingError != nil {
+		return fmt.Errorf("STD out writing error: %w: %s", stdOutWritingError, parseErrorMessage(stdError.Bytes()))
 	}
-	if err := validateJSON(stdout.Bytes()); err != nil {
-		return fmt.Errorf("report: %w", err)
+	if validationError := validateJson(stdOut.Bytes()); validationError != nil {
+		return fmt.Errorf("Validation error: %w", validationError)
 	}
 	return nil
 }
 
-func (cfg Config) args(extra ...string) []string {
-	var n = len(cfg.Args)
-	return append(cfg.Args[:n:n], extra...)
+func (configuration ExecutionConfiguration) formatArguments(extra ...string) []string {
+	var length = len(configuration.Arguments)
+	return append(configuration.Arguments[:length:length], extra...)
 }
 
 func parseErrorMessage(data []byte) string {
-	var sep = []byte(" ")
-	var msg = &strings.Builder{}
-	var re = bytes.NewReader(data)
-	var sc = bufio.NewScanner(re)
-	for sc.Scan() {
-		var line = sc.Bytes()
-		if bytes.HasPrefix(line, sep) {
+	var message = &strings.Builder{}
+	var reader = bytes.NewReader(data)
+	var scanner = bufio.NewScanner(reader)
+	for scanner.Scan() {
+		var line = scanner.Bytes()
+		if bytes.HasPrefix(line, []byte(" ")) {
 			continue
 		}
-		_, _ = msg.Write(line)
-		_, _ = msg.WriteString(" ")
+		_, _ = message.Write(line)
+		_, _ = message.WriteString(" ")
 	}
-	if msg.Len() == 0 {
+	if message.Len() == 0 {
 		return string(data)
 	}
-	return msg.String()
+	return message.String()
 }
 
-func validateJSON(data []byte) error {
-	var re = bytes.NewReader(data)
-	var decoder = json.NewDecoder(re)
+func validateJson(data []byte) error {
+	var reader = bytes.NewReader(data)
+	var decoder = json.NewDecoder(reader)
 	for decoder.More() {
 		var _, err = decoder.Token()
 		if err != nil {

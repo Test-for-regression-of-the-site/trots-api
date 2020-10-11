@@ -15,7 +15,7 @@ type TestRequestPayload struct {
 }
 
 type TestResponsePayload struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type ErrorResponsePayload struct {

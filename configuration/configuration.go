@@ -6,5 +6,5 @@ import (
 
 type Configuration struct {
 	Address    string
-	Lighthouse lighthouse.Config
+	Lighthouse lighthouse.ExecutionConfiguration
 }
