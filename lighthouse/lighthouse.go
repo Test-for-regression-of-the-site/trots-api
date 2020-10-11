@@ -16,7 +16,7 @@ import (
 	"strings"
 )
 
-func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) error {
+func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) (string, error) {
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"
 	}
@@ -49,7 +49,7 @@ func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfig
 
 	var _, urlError = url.Parse(link)
 	if urlError != nil {
-		return fmt.Errorf("URL error: %w", urlError)
+		return "", fmt.Errorf("URL error: %w", urlError)
 	}
 	var stdError = &bytes.Buffer{}
 	var stdOut = &bytes.Buffer{}
@@ -62,17 +62,17 @@ func ExecuteLighthouseTask(configuration configuration.LighthouseExecutionConfig
 	}
 	_, _ = fmt.Fprintf(stdError, "%s\n\n", command)
 	if commandRunError := command.Run(); commandRunError != nil {
-		return fmt.Errorf("Running lighthouse container error: %w\n%s", commandRunError, stdError)
+		return "", fmt.Errorf("Running lighthouse container error: %w\n%s", commandRunError, stdError)
 	}
 	var _, stdOutWritingError = stdOut.WriteTo(reportWriter)
 	if stdOutWritingError != nil {
-		return fmt.Errorf("STD out writing error: %w: %s", stdOutWritingError, parseErrorMessage(stdError.Bytes()))
+		return "", fmt.Errorf("STD out writing error: %w: %s", stdOutWritingError, parseErrorMessage(stdError.Bytes()))
 	}
 	if validationError := validateJson(stdOut.Bytes()); validationError != nil {
-		return fmt.Errorf("Validation error: %w", validationError)
+		return "", fmt.Errorf("Validation error: %w", validationError)
 	}
 
-	return nil
+	return containerId.ID, nil
 }
 
 func formatArguments(configuration configuration.LighthouseExecutionConfiguration, extra ...string) []string {
