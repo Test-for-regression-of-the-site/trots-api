@@ -5,7 +5,9 @@ import (
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/spf13/cast"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -75,6 +77,15 @@ func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer
 	if _, dockerError = dockerClient.WaitContainer(containerId.ID); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
 		return "", dockerError
+	}
+	file, readingError := ioutil.ReadFile(directoryPath + cast.ToString(filepath.Separator) + "report.json")
+	if readingError != nil {
+		log.Printf("Reading error: %s", readingError)
+		return "", readingError
+	}
+	if _, writingError := reportWriter.Write(file); writingError != nil {
+		log.Printf("Writting error: %s", writingError)
+		return "", readingError
 	}
 	return containerId.ID, nil
 }
