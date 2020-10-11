@@ -16,7 +16,6 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 		}
 		return
 	}
-	response := &TestResponse{service.RunTest(*testRequest.TestRequestPayload)}
 	if renderError := render.Render(writer, request, response); renderError != nil {
 		log.Printf(renderError.Error())
 	}
@@ -25,5 +24,5 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 func getTestReports(writer http.ResponseWriter, request *http.Request) {
 	sessionId := request.Context().Value(constants.SessionIdParameter).(string)
 	testId := request.Context().Value(constants.TestIdParameter).(string)
-	service.GetTestReports(sessionId, testId)
+	service.GetTestReport(sessionId, testId)
 }

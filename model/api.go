@@ -14,34 +14,27 @@ type TestRequestPayload struct {
 	TestType   TestType `json:"testType"`
 }
 
-type TestResponsePayload struct {
-	Id string `json:"id"`
-}
-
 type ErrorResponsePayload struct {
 	Error   error  `json:"-"`
 	Status  int    `json:"-"`
 	Message string `json:"message"`
 }
 
-type ShortDashboardItemPayload struct {
+type DashboardResponsePayload struct {
+	ProcessEnd     bool                   `json:"processEnd"`
+	ShortDashboard []SessionReportPayload `json:"shortDashboard"`
+}
+
+type TestReportPayload struct {
 	Id                string `json:"id"`
 	Url               string `json:"url"`
 	Performance       int    `json:"performance"`
+	Accessibility     int    `json:"accessibility"`
 	BestPractices     int    `json:"bestPractices"`
 	Seo               int    `json:"seo"`
 	ProgressiveWebApp int    `json:"progressiveWebApp"`
 }
 
-type ShortDashboardPayload struct {
-	Items []ShortDashboardItemPayload `json:"items"`
-}
-
-type DashboardPayload struct {
-	Uuid ShortDashboardPayload `json:"UUID"`
-}
-
-type ReportsPayload struct {
-	ProcessEnd     bool             `json:"processEnd"`
-	ShortDashboard DashboardPayload `json:"shortDashboard"`
+type SessionReportPayload struct {
+	TestReports map[string][]TestReportPayload `json:""`
 }

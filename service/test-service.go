@@ -4,13 +4,10 @@ import (
 	"bytes"
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	model "github.com/Test-for-regression-of-the-site/trots-api/model"
-	"github.com/google/uuid"
 	"log"
 )
 
-func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
-	var id = uuid.New().String()
-
+func RunTest(request model.TestRequestPayload) {
 	completeTask := func(containerId string, reportBuffer *bytes.Buffer) {
 		// TODO: Put into mongo
 	}
@@ -32,16 +29,14 @@ func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 	for _, url := range request.Links {
 		go runTask(url)
 	}
-
-	return &model.TestResponsePayload{Id: id}
 }
 
-func GetTestReports(sessionId string, testId string) *model.ReportsPayload {
+func GetTestReport(sessionId string, testId string) *interface{} {
 	log.Printf("Test")
 	return nil
 }
 
-func GetDashboard() *model.DashboardPayload {
+func GetDashboard() *model.DashboardResponsePayload {
 	log.Printf("Test")
 	return nil
 }
