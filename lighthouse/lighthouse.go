@@ -3,13 +3,16 @@ package lighthouse
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"io"
 	"net/url"
 	"os/exec"
 	"strings"
-	"sync"
 )
 
 type ExecutionConfiguration struct {
@@ -19,9 +22,6 @@ type ExecutionConfiguration struct {
 }
 
 type Task struct {
-	sync.RWMutex
-	Done         chan struct{}
-	Running      bool
 	Error        error
 	Url          string
 	ReportBuffer *bytes.Buffer
@@ -31,6 +31,33 @@ func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, re
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"
 	}
+
+	dockerClient, dockerError := client.NewEnvClient()
+	if dockerError != nil {
+		fmt.Println("Unable to create docker dockerClient")
+		panic(dockerError)
+	}
+
+	hostBinding := nat.PortBinding{
+		HostIP:   "0.0.0.0",
+		HostPort: "8000",
+	}
+	containerPort, dockerError := nat.NewPort("tcp", "80")
+	if dockerError != nil {
+		panic("Unable to get the port")
+	}
+
+	portBinding := nat.PortMap{containerPort: []nat.PortBinding{hostBinding}}
+
+	containerConfig := &container.Config{Image: configuration.Image}
+	hostConfig := &container.HostConfig{PortBindings: portBinding}
+	containerId, dockerError := dockerClient.ContainerCreate(context.Background(), containerConfig, hostConfig, nil, "lighthouse")
+	if dockerError != nil {
+		panic(dockerError)
+	}
+
+	dockerClient.ContainerWait(context.Background(), containerId.ID)
+
 	var _, urlError = url.Parse(link)
 	if urlError != nil {
 		return fmt.Errorf("URL error: %w", urlError)
