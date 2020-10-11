@@ -17,5 +17,5 @@ type TestRequestPayload struct {
 type ErrorResponsePayload struct {
 	Error   error  `json:"-"`
 	Status  int    `json:"-"`
-	Message string `json:"status"`
+	Message string `json:"message"`
 }

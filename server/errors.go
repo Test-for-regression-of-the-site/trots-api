@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/go-chi/render"
 	"net/http"
@@ -21,7 +20,6 @@ func ErrorResponder(writer http.ResponseWriter, request *http.Request, payload i
 		if _, ok := request.Context().Value(render.StatusCtxKey).(int); !ok {
 			writer.WriteHeader(http.StatusBadRequest)
 		}
-		fmt.Printf("Error occured: %s\n", httpError.Error())
 		render.DefaultResponder(writer, request, render.M{"message": httpError.Error()})
 		return
 	}
