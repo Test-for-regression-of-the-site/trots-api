@@ -1,13 +1,14 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
+	docker "github.com/fsouza/go-dockerclient"
 	"io"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 var dockerClient = connect()
@@ -19,23 +20,67 @@ type LighthouseTaskRequest struct {
 }
 
 func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) (string, error) {
-	containerConfig := &container.Config{Image: request.Configuration.Image}
-	containerId, dockerError := dockerClient.ContainerCreate(
-		context.Background(),
-		containerConfig,
-		nil,
-		nil,
-		constants.Lighthouse+constants.Dash+request.Id,
-	)
-	if dockerError != nil {
-		panic(dockerError)
+	directory := "reports/" + request.Id
+	if directoryError := os.Mkdir(directory, os.ModePerm); directoryError != nil {
+		log.Printf("Directory error: %s", directoryError)
+		return "", directoryError
 	}
-	dockerClient.ContainerWait(context.Background(), containerId.ID, container.WaitConditionNextExit)
+	directoryPath, directoryError := filepath.Abs(directory)
+	if directoryError != nil {
+		log.Printf("Directory error: %s", directoryError)
+		return "", directoryError
+	}
+	imageOptions := docker.PullImageOptions{
+		Tag:          "latest",
+		Repository:   request.Configuration.Image,
+		OutputStream: log.Writer(),
+	}
+	dockerError := dockerClient.PullImage(imageOptions, docker.AuthConfiguration{})
+	if dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return "", dockerError
+	}
+	containerConfig := &docker.Config{
+		Image:        request.Configuration.Image + ":" + "latest",
+		Tty:          true,
+		AttachStdout: true,
+		AttachStderr: true,
+		Cmd: []string{
+			"lighthouse",
+			"--chrome-flags=\"--headless --disable-gpu\"",
+			"--output", "json",
+			"--output-path", "/home/chrome/reports/report.json",
+			"https://justinribeiro.com",
+		},
+	}
+	hostConfig := &docker.HostConfig{
+		Binds:      []string{directoryPath + ":/home/chrome/reports:rw"},
+		CapAdd:     []string{"SYS_ADMIN"},
+		AutoRemove: true,
+	}
+	containerOptions := docker.CreateContainerOptions{
+		HostConfig: hostConfig,
+		Config:     containerConfig,
+		Name:       constants.Lighthouse + constants.Dash + request.Id,
+	}
+	containerId, dockerError := dockerClient.CreateContainer(containerOptions)
+	if dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return "", dockerError
+	}
+	if dockerError = dockerClient.StartContainer(containerId.ID, hostConfig); dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return "", dockerError
+	}
+	if _, dockerError = dockerClient.WaitContainer(containerId.ID); dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return "", dockerError
+	}
 	return containerId.ID, nil
 }
 
-func connect() *client.Client {
-	dockerClient, dockerError := client.NewEnvClient()
+func connect() *docker.Client {
+	dockerClient, dockerError := docker.NewClientFromEnv()
 	if dockerError != nil {
 		fmt.Println("Unable to create docker dockerClient")
 		panic(dockerError)

@@ -23,8 +23,8 @@ func Serve() {
 
 	render.Respond = ErrorResponder
 
-	router.Post(constants.TasksRoutePattern, tasksRoute)
 	router.Route(constants.TasksRoutePattern, func(router chi.Router) {
+		router.Post(constants.Slash, tasksRoute)
 		router.Route(constants.SessionIdParameterPattern, func(router chi.Router) {
 			router.Use(handleTestReportsSessionId)
 			router.Route(constants.TestIdParameterPattern, func(router chi.Router) {
