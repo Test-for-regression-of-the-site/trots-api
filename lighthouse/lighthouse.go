@@ -21,12 +21,6 @@ type ExecutionConfiguration struct {
 	Environment []string
 }
 
-type Task struct {
-	Error        error
-	Url          string
-	ReportBuffer *bytes.Buffer
-}
-
 func ExecuteLighthouseTask(configuration ExecutionConfiguration, link string, reportWriter io.Writer) error {
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"

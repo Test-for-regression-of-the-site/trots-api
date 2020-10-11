@@ -11,19 +11,26 @@ import (
 func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 	var id = uuid.New().String()
 
-	for _, url := range request.Links {
-		var task = &lighthouse.Task{Url: url, ReportBuffer: &bytes.Buffer{}}
-		go func() {
-			configuration := lighthouse.ExecutionConfiguration{
-				Image:       "",
-				Arguments:   nil,
-				Environment: nil,
-			}
-			task.Error = lighthouse.ExecuteLighthouseTask(configuration, task.Url, task.ReportBuffer)
-			defer func() {
+	saveTask := func(reportBuffer *bytes.Buffer) {
+		// TODO: Put into mongo
+	}
 
-			}()
-		}()
+	runTask := func(url string) {
+		configuration := lighthouse.ExecutionConfiguration{
+			Image:       "",
+			Arguments:   nil,
+			Environment: nil,
+		}
+		reportBuffer := &bytes.Buffer{}
+		lighthouseError := lighthouse.ExecuteLighthouseTask(configuration, url, reportBuffer)
+		if lighthouseError != nil {
+			return
+		}
+		defer saveTask(reportBuffer)
+	}
+
+	for _, url := range request.Links {
+		go runTask(url)
 	}
 
 	return &model.TestResponsePayload{Id: id}
