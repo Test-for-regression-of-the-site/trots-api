@@ -1,10 +1,11 @@
 package service
 
 import (
-	"github.com/Test-for-regression-of-the-site/trots-api/model"
+	model "github.com/Test-for-regression-of-the-site/trots-api/model"
 	"log"
 )
 
-func RunTest(request model.TestRequestPayload) {
+func RunTest(request model.TestRequestPayload) *model.TestResponsePayload {
 	log.Printf("Test")
+	return &model.TestResponsePayload{Id: 123}
 }

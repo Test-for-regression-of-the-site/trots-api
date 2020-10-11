@@ -15,6 +15,8 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 		}
 		return
 	}
-	service.RunTest(*testRequest.TestRequestPayload)
-	_, _ = writer.Write([]byte("Test"))
+	response := &TestResponse{service.RunTest(*testRequest.TestRequestPayload)}
+	if renderError := render.Render(writer, request, response); renderError != nil {
+		log.Printf(renderError.Error())
+	}
 }

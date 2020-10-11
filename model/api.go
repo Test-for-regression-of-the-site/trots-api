@@ -14,6 +14,10 @@ type TestRequestPayload struct {
 	TestType   TestType `json:"testType"`
 }
 
+type TestResponsePayload struct {
+	Id int `json:"id"`
+}
+
 type ErrorResponsePayload struct {
 	Error   error  `json:"-"`
 	Status  int    `json:"-"`
