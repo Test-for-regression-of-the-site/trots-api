@@ -4,3 +4,7 @@ trots:
     timeout: "60s"
   lighthouse:
     image: "justinribeiro/lighthouse"
+    tag: "latest"
+  mongo:
+    address: "mongodb://localhost:27017"
+    timeout: "10s"

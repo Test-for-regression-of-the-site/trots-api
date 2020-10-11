@@ -1,12 +1,15 @@
 package provider
 
 import (
+	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
 	"github.com/spf13/viper"
 	"log"
 )
 
-func LoadConfiguration() {
+var Configuration = LoadConfiguration()
+
+func LoadConfiguration() configuration.Configuration {
 	viper.SetConfigName(constants.Trots)
 	viper.SetConfigType(constants.Yml)
 	viper.AddConfigPath(constants.Dot)
@@ -14,4 +17,16 @@ func LoadConfiguration() {
 		log.Panicf("Reading configuration file error: %s \n", readingError)
 	}
 	log.Printf("Read configuration from file %s", viper.ConfigFileUsed())
+	return configuration.Configuration{
+		Address: viper.GetString(constants.ServerAddressKey),
+		Timeout: viper.GetDuration(constants.TimeoutKey),
+		Lighthouse: configuration.LighthouseConfiguration{
+			Image: viper.GetString(constants.LighthouseImage),
+			Tag:   viper.GetString(constants.LighthouseTag),
+		},
+		Mongo: configuration.MongoConfiguration{
+			Address: viper.GetString(constants.MongoAddress),
+			Timeout: viper.GetDuration(constants.MongoTimeout),
+		},
+	}
 }

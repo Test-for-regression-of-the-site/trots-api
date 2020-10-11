@@ -2,11 +2,11 @@ package server
 
 import (
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
+	"github.com/Test-for-regression-of-the-site/trots-api/provider"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/spf13/viper"
 	"log"
 	"net/http"
 )
@@ -18,7 +18,7 @@ func Serve() {
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(viper.GetDuration(constants.TimeoutKey)))
+	router.Use(middleware.Timeout(provider.Configuration.Timeout))
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	render.Respond = ErrorResponder
@@ -34,8 +34,8 @@ func Serve() {
 		})
 	})
 
-	log.Printf("Listening and serving on: %s", viper.GetString(constants.ServerAddressKey))
-	if result := http.ListenAndServe(viper.GetString(constants.ServerAddressKey), router); result != nil {
+	log.Printf("Listening and serving on: %s", provider.Configuration.Address)
+	if result := http.ListenAndServe(provider.Configuration.Address, router); result != nil {
 		log.Printf(result.Error())
 	}
 }

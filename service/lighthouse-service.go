@@ -1,99 +1,117 @@
 package service
 
 import (
-	"fmt"
-	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
+	"github.com/Test-for-regression-of-the-site/trots-api/provider"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/spf13/cast"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var dockerClient = connect()
 
 type LighthouseTaskRequest struct {
-	Configuration configuration.LighthouseConfiguration
-	Id            string
-	Url           string
+	SessionId string
+	TestId    string
+	Url       string
 }
 
-func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) (string, error) {
-	directory := "reports/" + request.Id
-	if directoryError := os.Mkdir(directory, os.ModePerm); directoryError != nil {
+func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) error {
+	directoryPath, directoryError := makeReportsDirectory(request)
+	if directoryError != nil {
+		return directoryError
+	}
+	containerError := launchLighthouse(directoryPath, request)
+	if containerError != nil {
+		return containerError
+	}
+	time.Sleep(constants.LighthouseReportWaiting)
+	return handleReport(directoryPath, reportWriter)
+}
+
+func makeReportsDirectory(request LighthouseTaskRequest) (string, error) {
+	directory := constants.LighthouseHostReportDirectory + constants.Slash + request.SessionId + constants.Slash + request.TestId
+	if directoryError := os.MkdirAll(directory, os.ModePerm); directoryError != nil {
 		log.Printf("Directory error: %s", directoryError)
 		return "", directoryError
 	}
-	directoryPath, directoryError := filepath.Abs(directory)
+	directoryPath, directoryError := filepath.Abs(filepath.FromSlash(directory))
 	if directoryError != nil {
 		log.Printf("Directory error: %s", directoryError)
 		return "", directoryError
 	}
+	return directoryPath, nil
+}
+
+func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error {
 	imageOptions := docker.PullImageOptions{
-		Tag:          "latest",
-		Repository:   request.Configuration.Image,
+		Tag:          provider.Configuration.Lighthouse.Tag,
+		Repository:   provider.Configuration.Lighthouse.Image,
 		OutputStream: log.Writer(),
 	}
 	dockerError := dockerClient.PullImage(imageOptions, docker.AuthConfiguration{})
 	if dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
-		return "", dockerError
+		return dockerError
 	}
 	containerConfig := &docker.Config{
-		Image:        request.Configuration.Image + ":" + "latest",
+		Image:        provider.Configuration.Lighthouse.Image + constants.Colon + provider.Configuration.Lighthouse.Tag,
 		Tty:          true,
 		AttachStdout: true,
 		AttachStderr: true,
-		Cmd: []string{
-			"lighthouse",
-			"--chrome-flags=\"--headless --disable-gpu\"",
-			"--output", "json",
-			"--output-path", "/home/chrome/reports/report.json",
-			"https://justinribeiro.com",
-		},
+		Cmd:          append(constants.LighthouseOptions, request.Url),
 	}
 	hostConfig := &docker.HostConfig{
-		Binds:      []string{directoryPath + ":/home/chrome/reports:rw"},
-		CapAdd:     []string{"SYS_ADMIN"},
+		Binds:      []string{directoryPath + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},
+		CapAdd:     []string{constants.DockerSysAdminCapability},
 		AutoRemove: true,
 	}
 	containerOptions := docker.CreateContainerOptions{
-		HostConfig: hostConfig,
 		Config:     containerConfig,
-		Name:       constants.Lighthouse + constants.Dash + request.Id,
+		Name:       constants.Lighthouse + constants.Dash + request.TestId,
+		HostConfig: hostConfig,
 	}
 	containerId, dockerError := dockerClient.CreateContainer(containerOptions)
 	if dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
-		return "", dockerError
+		return dockerError
 	}
 	if dockerError = dockerClient.StartContainer(containerId.ID, hostConfig); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
-		return "", dockerError
+		return dockerError
 	}
 	if _, dockerError = dockerClient.WaitContainer(containerId.ID); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
-		return "", dockerError
+		return dockerError
 	}
-	file, readingError := ioutil.ReadFile(directoryPath + cast.ToString(filepath.Separator) + "report.json")
+	return nil
+}
+
+func handleReport(directoryPath string, reportWriter io.Writer) error {
+	file, readingError := ioutil.ReadFile(filepath.FromSlash(directoryPath + constants.Slash + constants.LighthouseReportFile))
 	if readingError != nil {
 		log.Printf("Reading error: %s", readingError)
-		return "", readingError
+		return readingError
 	}
 	if _, writingError := reportWriter.Write(file); writingError != nil {
 		log.Printf("Writting error: %s", writingError)
-		return "", readingError
+		return writingError
 	}
-	return containerId.ID, nil
+	if removingError := os.RemoveAll(directoryPath); removingError != nil {
+		log.Printf("Removing error: %s", removingError)
+		return removingError
+	}
+	return nil
 }
 
 func connect() *docker.Client {
 	dockerClient, dockerError := docker.NewClientFromEnv()
 	if dockerError != nil {
-		fmt.Println("Unable to create docker dockerClient")
+		log.Printf("Unable to create docker dockerClient")
 		panic(dockerError)
 	}
 	return dockerClient
