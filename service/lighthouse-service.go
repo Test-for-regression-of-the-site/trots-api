@@ -30,7 +30,7 @@ func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer
 	if dockerError != nil {
 		panic(dockerError)
 	}
-	dockerClient.ContainerWait(context.Background(), containerId.ID)
+	dockerClient.ContainerWait(context.Background(), containerId.ID, container.WaitConditionNextExit)
 	return containerId.ID, nil
 }
 
