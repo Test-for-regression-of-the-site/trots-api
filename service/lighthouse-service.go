@@ -16,17 +16,12 @@ import (
 	"strings"
 )
 
+var dockerClient = connect()
+
 func executeLighthouseTask(configuration configuration.LighthouseExecutionConfiguration, link string, reportWriter io.Writer) (string, error) {
 	if configuration.Image == "" {
 		configuration.Image = "lighthouse"
 	}
-
-	dockerClient, dockerError := client.NewEnvClient()
-	if dockerError != nil {
-		fmt.Println("Unable to create docker dockerClient")
-		panic(dockerError)
-	}
-
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",
 		HostPort: "8000",
@@ -73,6 +68,15 @@ func executeLighthouseTask(configuration configuration.LighthouseExecutionConfig
 	}
 
 	return containerId.ID, nil
+}
+
+func connect() *client.Client {
+	dockerClient, dockerError := client.NewEnvClient()
+	if dockerError != nil {
+		fmt.Println("Unable to create docker dockerClient")
+		panic(dockerError)
+	}
+	return dockerClient
 }
 
 func formatArguments(configuration configuration.LighthouseExecutionConfiguration, extra ...string) []string {
