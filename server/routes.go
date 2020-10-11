@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/Test-for-regression-of-the-site/trots-api/constants"
 	"github.com/Test-for-regression-of-the-site/trots-api/service"
 	"github.com/go-chi/render"
 	"log"
@@ -19,4 +20,10 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 	if renderError := render.Render(writer, request, response); renderError != nil {
 		log.Printf(renderError.Error())
 	}
+}
+
+func getTestReports(writer http.ResponseWriter, request *http.Request) {
+	sessionId := request.Context().Value(constants.SessionIdParameter).(string)
+	testId := request.Context().Value(constants.TestIdParameter).(string)
+	service.GetTestReports(sessionId, testId)
 }

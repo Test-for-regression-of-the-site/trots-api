@@ -24,7 +24,7 @@ type ErrorResponsePayload struct {
 	Message string `json:"message"`
 }
 
-type ShortDashboardContent struct {
+type ShortDashboardItemPayload struct {
 	Id                string `json:"id"`
 	Url               string `json:"url"`
 	Performance       int    `json:"performance"`
@@ -33,15 +33,15 @@ type ShortDashboardContent struct {
 	ProgressiveWebApp int    `json:"progressiveWebApp"`
 }
 
-type ShortDashboard struct {
-	Items []ShortDashboardContent `json:"items"`
+type ShortDashboardPayload struct {
+	Items []ShortDashboardItemPayload `json:"items"`
 }
 
-type Dashboard struct {
-	Uuid ShortDashboard `json:"UUID"`
+type DashboardPayload struct {
+	Uuid ShortDashboardPayload `json:"UUID"`
 }
 
-type Reports struct {
-	ProcessEnd     bool      `json:"processEnd"`
-	ShortDashboard Dashboard `json:"shortDashboard"`
+type ReportsPayload struct {
+	ProcessEnd     bool             `json:"processEnd"`
+	ShortDashboard DashboardPayload `json:"shortDashboard"`
 }

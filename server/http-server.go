@@ -24,7 +24,16 @@ func Serve() {
 
 	render.Respond = ErrorResponder
 
-	router.Post(constants.TasksRoute, tasksRoute)
+	router.Post(constants.TasksRoutePattern, tasksRoute)
+	router.Route(constants.TasksRoutePattern, func(router chi.Router) {
+		router.Route(constants.SessionIdParameterPattern, func(router chi.Router) {
+			router.Use(handleTestReportsSessionId)
+			router.Route(constants.TestIdParameterPattern, func(router chi.Router) {
+				router.Use(handleTestReportsTestId)
+				router.Get(constants.Slash, getTestReports)
+			})
+		})
+	})
 
 	log.Printf("Listening and serving on: %s", viper.GetString(constants.ServerAddressKey))
 	if result := http.ListenAndServe(viper.GetString(constants.ServerAddressKey), router); result != nil {

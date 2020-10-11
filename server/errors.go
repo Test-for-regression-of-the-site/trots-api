@@ -28,5 +28,7 @@ func ErrorResponder(writer http.ResponseWriter, request *http.Request, payload i
 }
 
 func InvalidRequest(error error) render.Renderer {
-	return &ErrorResponse{&model.ErrorResponsePayload{Error: error, Status: 400, Message: error.Error()}}
+	return &ErrorResponse{&model.ErrorResponsePayload{Error: error, Status: http.StatusBadRequest, Message: error.Error()}}
 }
+
+var NotFound = &ErrorResponse{&model.ErrorResponsePayload{Status: http.StatusNotFound, Message: "Not found"}}

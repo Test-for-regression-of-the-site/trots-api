@@ -13,10 +13,19 @@ var (
 )
 
 const (
-	Trots               = "trots"
-	Yml                 = "yaml"
-	Dot                 = "."
-	ServerAddressKey    = "trots.server.address"
-	TasksRoute          = "/tasks"
-	TasksDashboardRoute = "/tasks/dashboard"
+	Trots = "trots"
+	Yml   = "yaml"
+
+	ServerAddressKey = "trots.server.address"
+
+	Dot   = "."
+	Slash = "/"
+
+	SessionIdParameter = "sessionId"
+	TestIdParameter    = "testId"
+
+	TasksRoutePattern          = "/tasks"
+	SessionIdParameterPattern  = "/{sessionId}"
+	TestIdParameterPattern     = "/{testId}"
+	TasksDashboardRoutePattern = "/tasks/dashboard"
 )
