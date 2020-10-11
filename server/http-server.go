@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
-	"time"
 )
 
 func Serve() {
@@ -19,7 +18,7 @@ func Serve() {
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(60 * time.Second))
+	router.Use(middleware.Timeout(viper.GetDuration(constants.TimeoutKey)))
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	render.Respond = ErrorResponder

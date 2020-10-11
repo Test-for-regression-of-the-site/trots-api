@@ -1,3 +1,4 @@
 trots:
   server:
     address: "0.0.0.0:1234"
+    timeout: "60s"

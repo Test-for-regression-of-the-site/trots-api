@@ -17,6 +17,7 @@ const (
 	Yml   = "yaml"
 
 	ServerAddressKey = "trots.server.address"
+	TimeoutKey       = "trots.server.timeout"
 
 	Dot   = "."
 	Slash = "/"
