@@ -13,13 +13,16 @@ var (
 )
 
 const (
-	Trots = "trots"
-	Yml   = "yaml"
+	Trots      = "trots"
+	Yml        = "yaml"
+	Lighthouse = "lighthouse"
 
 	ServerAddressKey = "trots.server.address"
 	TimeoutKey       = "trots.server.timeout"
+	LighthouseImage  = "trots.lighthouse.image"
 
 	Dot   = "."
+	Dash  = "-"
 	Slash = "/"
 
 	SessionIdParameter = "sessionId"
