@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -102,7 +101,9 @@ func handleReport(directoryPath string, reportWriter io.Writer) error {
 		log.Printf("Writting error: %s", writingError)
 		return writingError
 	}
-	if removingError := os.RemoveAll(strings.TrimRight(directoryPath, constants.Slash)); removingError != nil {
+
+	parent, _ := filepath.Split(directoryPath)
+	if removingError := os.RemoveAll(parent); removingError != nil {
 		log.Printf("Removing error: %s", removingError)
 		return removingError
 	}
