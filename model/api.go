@@ -36,5 +36,5 @@ type TestReportPayload struct {
 }
 
 type SessionReportPayload struct {
-	TestReports []TestReportPayload `json:"-"`
+	TestReports []TestReportPayload
 }
