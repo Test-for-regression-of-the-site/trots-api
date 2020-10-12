@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/provider"
@@ -17,7 +16,7 @@ type MongoStorage struct {
 	client *mongo.Client
 }
 
-var storage = connect(provider.Configuration.Mongo)
+var storage = connect()
 
 func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity) {
 	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
@@ -101,7 +100,7 @@ func GetSession(sessionId string) (*model.SessionEntity, error) {
 	return &session, nil
 }
 
-func GetTest(sessionId string, testId string) (*model.TestEntity, error) {
+func GetTest(sessionId, testId string) (*model.TestEntity, error) {
 	session, mongoError := GetSession(sessionId)
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
@@ -164,17 +163,17 @@ func GetSessions() (*[]model.SessionEntity, error) {
 	return &sessions, nil
 }
 
-func connect(configuration configuration.MongoConfiguration) *MongoStorage {
-	client, mongoError := mongo.NewClient(options.Client().ApplyURI(configuration.Address))
+func connect() *MongoStorage {
+	client, mongoError := mongo.NewClient(options.Client().ApplyURI(provider.Configuration.Mongo.Address))
 	if mongoError != nil {
 		log.Panicf("Mongo error: %s", mongoError)
 	}
-	mongoContext, cancel := context.WithTimeout(context.Background(), configuration.Timeout)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
 	defer cancel()
 	if mongoError = client.Connect(mongoContext); mongoError != nil {
 		log.Panicf("Mongo error: %s", mongoError)
 	}
-	log.Printf("Mongo client connected to: %s", configuration.Address)
+	log.Printf("Mongo client connected to: %s", provider.Configuration.Mongo.Address)
 	return &MongoStorage{client: client}
 }
 

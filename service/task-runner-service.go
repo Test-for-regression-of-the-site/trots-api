@@ -42,7 +42,7 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 	}
 }
 
-func completeTask(sessionId string, testId string, url string, reportContent *bytes.Buffer) {
+func completeTask(sessionId, testId, url string, reportContent *bytes.Buffer) {
 	reportId := primitive.NewObjectID()
 	var report map[string]interface{}
 	if jsonError := json.Unmarshal(reportContent.Bytes(), &report); jsonError != nil {

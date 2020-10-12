@@ -51,8 +51,8 @@ linters:
     - maligned # Tool to detect Go structs that would take less memory if their fields were sorted [fast: true, auto-fix: false]
     - misspell # Finds commonly misspelled English words in comments [fast: true, auto-fix: true]
     - nakedret # Finds naked returns in functions greater than a specified function length [fast: true, auto-fix: false]
-    - prealloc # Finds slice declarations that could potentially be preallocated [fast: true, auto-fix: false]
-    - staticcheck # Staticcheck is a go vet on steroids, applying a ton of static analysis checks [fast: true, auto-fix: false]
+ #  - prealloc # Finds slice declarations that could potentially be preallocated [fast: true, auto-fix: false]
+ #  - staticcheck # Staticcheck is a go vet on steroids, applying a ton of static analysis checks [fast: true, auto-fix: false]
     - structcheck # Finds unused struct fields [fast: true, auto-fix: false]
     - scopelint # Scopelint checks for unpinned variables in go programs [fast: true, auto-fix: false]
   # - stylecheck # Stylecheck is a replacement for golint [fast: true, auto-fix: false]
@@ -111,7 +111,7 @@ linters-settings:
     settings: {}
 
   gocyclo:
-    min-complexity: 10 # minimal code complexity to report
+    min-complexity: 15 # minimal code complexity to report
 
   godox:
     keywords:
