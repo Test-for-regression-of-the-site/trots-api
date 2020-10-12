@@ -101,11 +101,21 @@ func handleReport(directoryPath string, reportWriter io.Writer) error {
 		log.Printf("Writting error: %s", writingError)
 		return writingError
 	}
-
-	parent, _ := filepath.Split(directoryPath)
-	if removingError := os.RemoveAll(parent); removingError != nil {
+	if removingError := os.RemoveAll(directoryPath); removingError != nil {
 		log.Printf("Removing error: %s", removingError)
 		return removingError
+	}
+	parent, _ := filepath.Split(directoryPath)
+	files, removingError := ioutil.ReadDir(parent)
+	if removingError != nil {
+		log.Printf("Removing error: %s", removingError)
+		return removingError
+	}
+	if len(files) == 0 {
+		if removingError := os.RemoveAll(parent); removingError != nil {
+			log.Printf("Removing error: %s", removingError)
+			return removingError
+		}
 	}
 	return nil
 }

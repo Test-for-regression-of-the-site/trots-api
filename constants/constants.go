@@ -27,6 +27,7 @@ const (
 	Yml        = "yaml"
 	Lighthouse = "lighthouse"
 	Session    = "session"
+	Report     = "report"
 
 	ServerAddressKey = "trots.server.address"
 	TimeoutKey       = "trots.server.timeout"
@@ -34,6 +35,7 @@ const (
 	LighthouseTag    = "trots.lighthouse.tag"
 	MongoAddress     = "trots.mongo.address"
 	MongoTimeout     = "trots.mongo.timeout"
+	MongoId          = "_id"
 
 	Dot    = "."
 	Dash   = "-"

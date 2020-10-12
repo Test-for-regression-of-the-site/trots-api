@@ -38,9 +38,18 @@ func PutTest(sessionId string, test model.TestEntity) {
 			Id:    id,
 			Tests: []model.TestEntity{test},
 		}
+		if _, mongoError := collection.InsertOne(mongoContext, session); mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+		}
+		return
+	}
+	id, mongoError := primitive.ObjectIDFromHex(sessionId)
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return
 	}
 	session.Tests = append(session.Tests, test)
-	if _, mongoError := collection.InsertOne(mongoContext, session); mongoError != nil {
+	if _, mongoError := collection.UpdateOne(mongoContext, bson.D{{constants.MongoId, id}}, session); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 	}
 }
@@ -54,7 +63,7 @@ func GetSession(sessionId string) (*model.SessionEntity, error) {
 	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
 	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
 	defer cancel()
-	cursor, mongoError := collection.Find(mongoContext, bson.D{{"_id", id}})
+	cursor, mongoError := collection.Find(mongoContext, bson.D{{constants.MongoId, id}})
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
