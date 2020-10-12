@@ -7,9 +7,19 @@ import (
 	"github.com/Test-for-regression-of-the-site/trots-api/storage"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
+	"sync"
 )
 
+var lock = sync.Mutex{}
+var working = false
+
 func RunTest(request model.TestRequestPayload) {
+	lock.Lock()
+	working = true
+	defer func() {
+		working = false
+		lock.Unlock()
+	}()
 	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
@@ -64,5 +74,5 @@ func GetDashboard() *model.DashboardResponsePayload {
 		}
 		sessionDashboards[session.Id.Hex()] = model.SessionReportPayload{TestReports: testReports}
 	}
-	return &model.DashboardResponsePayload{ShortDashboard: sessionDashboards}
+	return &model.DashboardResponsePayload{ProcessEnd: working, ShortDashboard: sessionDashboards}
 }
