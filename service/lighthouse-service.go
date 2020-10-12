@@ -77,6 +77,7 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 	hostConfig := &docker.HostConfig{
 		Binds:      []string{directoryPath + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},
 		CapAdd:     []string{constants.DockerSysAdminCapability},
+		Privileged: true,
 		AutoRemove: true,
 	}
 	containerOptions := docker.CreateContainerOptions{
@@ -86,6 +87,19 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 	}
 	containerId, dockerError := dockerClient.CreateContainer(containerOptions)
 	if dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return dockerError
+	}
+	logsOptions := docker.LogsOptions{
+		Follow:       true,
+		ErrorStream:  log.Writer(),
+		OutputStream: log.Writer(),
+		Stdout:       true,
+		Stderr:       true,
+		Container:    containerId.ID,
+		RawTerminal:  true,
+	}
+	if dockerError = dockerClient.Logs(logsOptions); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
 	}
