@@ -29,11 +29,11 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 			runNextTask := func() {
 				completeTask(sessionId, testId, url, buffer)
 				nextChunkIndex := chunkIndex + 1
-				if nextChunkIndex < len(chunks) {
-					runTasks(sessionId, nextChunkIndex, chunks)
+				if nextChunkIndex >= len(chunks) {
+					Unlock()
 					return
 				}
-				Unlock()
+				runTasks(sessionId, nextChunkIndex, chunks)
 			}
 
 			defer runNextTask()
