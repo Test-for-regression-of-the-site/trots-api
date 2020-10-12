@@ -31,6 +31,5 @@ func GetTestReport(sessionId string, testId string) *map[string]interface{} {
 }
 
 func GetDashboard() *model.DashboardResponsePayload {
-	log.Printf("Test")
 	return nil
 }
