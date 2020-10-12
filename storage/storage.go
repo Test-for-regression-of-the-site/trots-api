@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"encoding/hex"
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
@@ -30,7 +29,7 @@ func PutTest(sessionId string, test model.TestEntity) {
 		return
 	}
 	if session == nil {
-		id, mongoError := primitive.ObjectIDFromHex(hex.EncodeToString([]byte(sessionId)))
+		id, mongoError := primitive.ObjectIDFromHex(sessionId)
 		if mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
 			return
@@ -55,7 +54,7 @@ func GetSession(sessionId string) (*model.SessionEntity, error) {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
 	}
-	if !cursor.Next(mongoContext) {
+	if !cursor.TryNext(mongoContext) {
 		return nil, nil
 	}
 	var session model.SessionEntity
@@ -64,6 +63,41 @@ func GetSession(sessionId string) (*model.SessionEntity, error) {
 		return nil, mongoError
 	}
 	return &session, nil
+}
+
+func GetTest(sessionId string, testId string) (*model.TestEntity, error) {
+	session, mongoError := GetSession(sessionId)
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	for _, test := range session.Tests {
+		if test.Id == testId {
+			return &test, nil
+		}
+	}
+	return nil, nil
+}
+
+func GetSessions() (*[]model.SessionEntity, error) {
+	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
+	defer cancel()
+	cursor, mongoError := collection.Find(mongoContext, bson.D{})
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	var sessions []model.SessionEntity
+	for cursor.Next(mongoContext) {
+		var session model.SessionEntity
+		if mongoError = cursor.Decode(session); mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return nil, mongoError
+		}
+		sessions = append(sessions, session)
+	}
+	return &sessions, nil
 }
 
 func connect(configuration configuration.MongoConfiguration) *MongoStorage {

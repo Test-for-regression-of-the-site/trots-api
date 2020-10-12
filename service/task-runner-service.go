@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/storage"
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 )
 
 func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 	for _, url := range chunks[chunkIndex] {
 		runTask := func() {
-			testId := uuid.New()
+			testId := primitive.NewObjectID().Hex()
 			buffer := &bytes.Buffer{}
 			request := LighthouseTaskRequest{
 				SessionId: sessionId,
-				TestId:    testId.String(),
+				TestId:    testId,
 				Url:       url,
 			}
 			lighthouseError := executeLighthouseTask(request, buffer)
@@ -25,7 +25,7 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 			}
 
 			runNextTask := func() {
-				completeTask(sessionId, testId.String(), buffer)
+				completeTask(sessionId, testId, buffer)
 				nextChunkIndex := chunkIndex + 1
 				if nextChunkIndex < len(chunks) {
 					runTasks(sessionId, nextChunkIndex, chunks)

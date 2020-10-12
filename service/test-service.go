@@ -3,12 +3,12 @@ package service
 import (
 	"github.com/Test-for-regression-of-the-site/trots-api/extensions"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 )
 
 func RunTest(request model.TestRequestPayload) {
-	runTasks(uuid.New().String(), 0, extensions.Chunks(request.Links, request.Parallel))
+	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
 func GetTestReport(sessionId string, testId string) *interface{} {
