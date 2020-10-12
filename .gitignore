@@ -119,3 +119,4 @@ fabric.properties
 # vendor/
 
 .idea/
+data/
