@@ -159,10 +159,6 @@ linters-settings:
       - unsafeptr # check for invalid conversions of uintptr to unsafe.Pointer
       - unusedresult # check for unused results of calls to some functions
     disable-all: true
-    disable:
-      - asmdecl # report mismatches between assembly files and Go declarations
-      - cgocall # detect some violations of the cgo pointer passing rules
-      - httpresponse # check for mistakes using HTTP responses
 
   lll:
     line-height: 160

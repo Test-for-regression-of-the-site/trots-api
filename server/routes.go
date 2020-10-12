@@ -20,7 +20,7 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 	writer.WriteHeader(http.StatusOK)
 }
 
-func getTestReports(writer http.ResponseWriter, request *http.Request) {
+func getTestReportsRoute(writer http.ResponseWriter, request *http.Request) {
 	sessionId := request.Context().Value(constants.SessionIdParameter).(string)
 	testId := request.Context().Value(constants.TestIdParameter).(string)
 	report := service.GetTestReport(sessionId, testId)
@@ -29,7 +29,7 @@ func getTestReports(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func getDashboard(writer http.ResponseWriter, request *http.Request) {
+func getDashboardRoute(writer http.ResponseWriter, request *http.Request) {
 	dashboard := service.GetDashboard()
 	if dashboard != nil {
 		if renderError := render.Render(writer, request, &DashboardResponse{dashboard}); renderError != nil {
