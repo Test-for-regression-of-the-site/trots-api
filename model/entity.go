@@ -15,10 +15,15 @@ type TestEntity struct {
 }
 
 type ReportInformation struct {
-	Id string `bson:"id,omitempty"`
+	Id                string `bson:"id,omitempty"`
+	Performance       int    `bson:"performance,omitempty"`
+	Accessibility     int    `bson:"accessibility,omitempty"`
+	BestPractices     int    `bson:"bestPractices,omitempty"`
+	Seo               int    `bson:"seo,omitempty"`
+	ProgressiveWebApp int    `bson:"progressiveWebApp,omitempty"`
 }
 
 type ReportEntity struct {
-	Id     string `bson:"id,omitempty"`
-	Report []byte `bson:"report,omitempty"`
+	Id     primitive.ObjectID `bson:"_id,omitempty"`
+	Report []byte             `bson:"report,omitempty"`
 }
