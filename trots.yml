@@ -5,7 +5,8 @@ trots:
   lighthouse:
     image: "justinribeiro/lighthouse"
     tag: "latest"
-    reportsPath: "/tmp/reports"
+    reportsTargetPath: "/tmp/reports"
+    reportsSourcePath: "/Users/anton/Development/Projects/trots-api/reports"
   mongo:
     address: "mongodb://127.0.0.1:27017"
     timeout: "60s"
