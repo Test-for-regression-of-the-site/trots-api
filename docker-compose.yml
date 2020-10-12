@@ -1,7 +1,7 @@
 version: '3'
 services:
   trots:
-    build: .
+    build: "."
     container_name: "trots"
     image: trots:latest
     volumes:
@@ -22,7 +22,7 @@ services:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/data/db
+      - /tmp/data/db:/data/db
     ports:
       - 27017:27017
     networks:

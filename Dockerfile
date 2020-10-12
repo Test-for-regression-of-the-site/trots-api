@@ -16,7 +16,7 @@ FROM ubuntu:18.04
 RUN mkdir /home/trots
 RUN mkdir /tmp/reports
 COPY --from=builder /project/cmd/trots /home/trots
-COPY --from=builder /project/trots.yml /home/trots
+COPY --from=builder /project/.docker/trots.yml /home/trots
 RUN chmod +x /home/trots/trots
 WORKDIR /home/trots
 
