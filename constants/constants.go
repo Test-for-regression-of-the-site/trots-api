@@ -28,6 +28,7 @@ const (
 	Lighthouse = "lighthouse"
 	Session    = "session"
 	Report     = "report"
+	Tests      = "tests"
 
 	ServerAddressKey = "trots.server.address"
 	TimeoutKey       = "trots.server.timeout"
@@ -36,6 +37,7 @@ const (
 	MongoAddress     = "trots.mongo.address"
 	MongoTimeout     = "trots.mongo.timeout"
 	MongoId          = "_id"
+	MongoSet         = "$set"
 
 	Dot    = "."
 	Dash   = "-"

@@ -54,7 +54,9 @@ func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity
 		return
 	}
 	session.Tests = append(session.Tests, test)
-	if _, mongoError := sessionCollection.UpdateOne(mongoContext, bson.D{{constants.MongoId, id}}, session); mongoError != nil {
+	filter := bson.D{{constants.MongoId, id}}
+	update := bson.D{{constants.MongoSet, bson.D{{constants.Tests, session.Tests}}}}
+	if _, mongoError := sessionCollection.UpdateOne(mongoContext, filter, update); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 	}
 }
