@@ -48,10 +48,9 @@ const (
 	TestIdParameterPattern     = "/{testId}"
 	TasksDashboardRoutePattern = "/tasks/dashboard"
 
-	LighthouseReportsDirectory    = "/home/chrome/reports"
-	LighthouseReportFile          = "report.json"
-	LighthouseHostReportDirectory = "reports"
-	LighthouseReportWaiting       = 10 * time.Second
+	LighthouseReportsDirectory = "/home/chrome/reports"
+	LighthouseReportFile       = "report.json"
+	LighthouseReportWaiting    = 10 * time.Second
 
 	LightHouseFlagDisableGpu     = "--chrome-flags=\"--headless --disable-gpu\""
 	LightHouseFlagOutput         = "--output"
