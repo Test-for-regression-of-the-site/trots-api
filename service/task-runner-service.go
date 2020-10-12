@@ -27,10 +27,10 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 				return
 			}
 			completeTask(sessionId, testId, url, buffer)
-			if urlIndex+1 >= len(urls) {
+			if urlIndex+1 == len(urls) {
 				defer func() {
 					nextIndex := chunkIndex + 1
-					if nextIndex >= len(chunks) {
+					if nextIndex == len(chunks) {
 						Unlock()
 						return
 					}
