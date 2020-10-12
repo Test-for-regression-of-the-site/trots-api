@@ -136,28 +136,6 @@ linters-settings:
         checks: argument,case,condition,operation,return,assign
 
   govet:
-    check-shadowing: false
-    settings: {} # settings per analyzer
-    enable-all: false
-    enable:
-      - assign # check for useless assignments
-      - atomic # check for common mistakes using the sync/atomic package
-      - bools # check for common mistakes involving boolean operators
-      - buildtag # check that +build tags are well-formed and correctly located
-      - copylocks # check for locks erroneously passed by value
-      - errorsas # report passing non-pointer or non-error values to errors.As
-      - loopclosure # check references to loop variables from within nested functions
-      - lostcancel # check cancel func returned by context.WithCancel is called
-      - nilfunc # check for useless comparisons between functions and nil
-      - printf # check consistency of Printf format strings and arguments
-      - shift # check for shifts that equal or exceed the width of the integer
-      - stdmethods # check signature of methods of well-known interfaces
-      - structtag # check that struct field tags conform to reflect.StructTag.Get
-      - tests # check for common mistaken usages of tests and examples
-      - unmarshal # report passing non-pointer or non-interface values to unmarshal
-      - unreachable # check for unreachable code
-      - unsafeptr # check for invalid conversions of uintptr to unsafe.Pointer
-      - unusedresult # check for unused results of calls to some functions
     disable-all: true
 
   lll:
