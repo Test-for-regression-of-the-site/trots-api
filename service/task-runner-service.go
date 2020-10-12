@@ -11,6 +11,7 @@ import (
 )
 
 func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
+	Lock()
 	for _, url := range chunks[chunkIndex] {
 		runTask := func() {
 			testId := primitive.NewObjectID().Hex()
@@ -31,7 +32,9 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 				nextChunkIndex := chunkIndex + 1
 				if nextChunkIndex < len(chunks) {
 					runTasks(sessionId, nextChunkIndex, chunks)
+					return
 				}
+				Unlock()
 			}
 
 			defer runNextTask()

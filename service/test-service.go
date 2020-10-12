@@ -14,12 +14,6 @@ var lock = sync.Mutex{}
 var working = false
 
 func RunTest(request model.TestRequestPayload) {
-	lock.Lock()
-	working = true
-	defer func() {
-		working = false
-		lock.Unlock()
-	}()
 	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
@@ -74,5 +68,15 @@ func GetDashboard() *model.DashboardResponsePayload {
 		}
 		sessionDashboards[session.Id.Hex()] = model.SessionReportPayload{TestReports: testReports}
 	}
-	return &model.DashboardResponsePayload{ProcessEnd: working, ShortDashboard: sessionDashboards}
+	return &model.DashboardResponsePayload{ProcessEnd: !working, ShortDashboard: sessionDashboards}
+}
+
+func Lock() {
+	lock.Lock()
+	working = true
+}
+
+func Unlock() {
+	working = false
+	lock.Unlock()
 }
