@@ -8,14 +8,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"sync"
+	"time"
 )
 
 var lock = sync.Mutex{}
 var working = false
 
-func RunTest(request model.TestRequestPayload) {
+func RunTest(request model.TestRequestPayload) int64 {
 	Lock()
-	go runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
+	creationTime := time.Now().Unix()
+	sessionId := model.SessionIdentifier{CreationTime: creationTime, Id: primitive.NewObjectID().Hex()}
+	go runTasks(sessionId, 0, extensions.Chunks(request.Links, request.Parallel))
+	return creationTime
 }
 
 func GetTestReport(sessionId, testId string) map[string]interface{} {
@@ -52,7 +56,7 @@ func GetDashboard() *model.DashboardResponsePayload {
 	if sessions == nil {
 		return nil
 	}
-	sessionDashboards := make(map[string][]model.TestReportPayload)
+	sessionDashboards := make(map[string]model.SessionReportPayload)
 	for _, session := range *sessions {
 		var testReports []model.TestReportPayload
 		for _, test := range session.Tests {
@@ -67,7 +71,7 @@ func GetDashboard() *model.DashboardResponsePayload {
 			}
 			testReports = append(testReports, testReport)
 		}
-		sessionDashboards[session.Id.Hex()] = testReports
+		sessionDashboards[session.Id.Hex()] = model.SessionReportPayload{CreationTime: session.CreationTime, Tests: testReports}
 	}
 	return &model.DashboardResponsePayload{ProcessEnd: !working, ShortDashboard: sessionDashboards}
 }

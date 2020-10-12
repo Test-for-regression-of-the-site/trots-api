@@ -18,10 +18,15 @@ type MongoStorage struct {
 
 var storage = connect()
 
-func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity) {
+func PutTest(sessionId model.SessionIdentifier, test model.TestEntity, report *model.ReportEntity) {
 	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
 	defer cancel()
-	mongoError := storage.client.UseSession(mongoContext, func(mongoSession mongo.SessionContext) error {
+	id, mongoError := primitive.ObjectIDFromHex(sessionId.Id)
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return
+	}
+	mongoError = storage.client.UseSession(mongoContext, func(mongoSession mongo.SessionContext) error {
 		if mongoError := mongoSession.StartTransaction(); mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
 			return mongoError
@@ -32,29 +37,20 @@ func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity
 			log.Printf("Mongo error: %s", mongoError)
 			return mongoError
 		}
-		session, mongoError := GetSession(sessionId)
+		session, mongoError := GetSession(sessionId.Id)
 		if mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
 			return mongoError
 		}
 		if session == nil {
-			id, mongoError := primitive.ObjectIDFromHex(sessionId)
-			if mongoError != nil {
-				log.Printf("Mongo error: %s", mongoError)
-				return mongoError
-			}
 			session = &model.SessionEntity{
-				Id:    id,
-				Tests: []model.TestEntity{test},
+				Id:           id,
+				CreationTime: sessionId.CreationTime,
+				Tests:        []model.TestEntity{test},
 			}
 			if _, mongoError := sessionCollection.InsertOne(mongoContext, session); mongoError != nil {
 				log.Printf("Mongo error: %s", mongoError)
 			}
-			return mongoError
-		}
-		id, mongoError := primitive.ObjectIDFromHex(sessionId)
-		if mongoError != nil {
-			log.Printf("Mongo error: %s", mongoError)
 			return mongoError
 		}
 		session.Tests = append(session.Tests, test)

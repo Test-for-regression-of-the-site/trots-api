@@ -5,8 +5,9 @@ import (
 )
 
 type SessionEntity struct {
-	Id    primitive.ObjectID `bson:"_id,omitempty"`
-	Tests []TestEntity       `bson:"tests,omitempty"`
+	Id           primitive.ObjectID `bson:"_id,omitempty"`
+	CreationTime int64              `bson:"creationTime,omitempty"`
+	Tests        []TestEntity       `bson:"tests,omitempty"`
 }
 
 type TestEntity struct {
