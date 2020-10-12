@@ -73,7 +73,7 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 		AttachStderr: true,
 		Cmd:          options,
 	}
-	reportsSourcePath := provider.Configuration.Lighthouse.ReportsSourcePath + request.SessionId + constants.Slash + request.TestId
+	reportsSourcePath := provider.Configuration.Lighthouse.ReportsSourcePath + constants.Slash + request.SessionId + constants.Slash + request.TestId
 	hostConfig := &docker.HostConfig{
 		Binds:  []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
 		CapAdd: []string{constants.DockerSysAdminCapability},
