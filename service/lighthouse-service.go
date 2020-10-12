@@ -69,16 +69,14 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 	}
 	containerConfig := &docker.Config{
 		Image:        provider.Configuration.Lighthouse.Image + constants.Colon + provider.Configuration.Lighthouse.Tag,
-		Tty:          true,
 		AttachStdout: true,
 		AttachStderr: true,
 		Cmd:          options,
 	}
 	hostConfig := &docker.HostConfig{
-		Binds:      []string{directoryPath + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},
+		Binds:      []string{constants.LighthouseReportVolulme + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},
 		CapAdd:     []string{constants.DockerSysAdminCapability},
 		Privileged: true,
-		AutoRemove: true,
 	}
 	containerOptions := docker.CreateContainerOptions{
 		Config:     containerConfig,
@@ -90,6 +88,14 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
 	}
+	if dockerError = dockerClient.StartContainer(containerId.ID, hostConfig); dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return dockerError
+	}
+	if _, dockerError = dockerClient.WaitContainer(containerId.ID); dockerError != nil {
+		log.Printf("Docker error: %s", dockerError)
+		return dockerError
+	}
 	logsOptions := docker.LogsOptions{
 		Follow:       true,
 		ErrorStream:  log.Writer(),
@@ -97,17 +103,8 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 		Stdout:       true,
 		Stderr:       true,
 		Container:    containerId.ID,
-		RawTerminal:  true,
 	}
 	if dockerError = dockerClient.Logs(logsOptions); dockerError != nil {
-		log.Printf("Docker error: %s", dockerError)
-		return dockerError
-	}
-	if dockerError = dockerClient.StartContainer(containerId.ID, hostConfig); dockerError != nil {
-		log.Printf("Docker error: %s", dockerError)
-		return dockerError
-	}
-	if _, dockerError = dockerClient.WaitContainer(containerId.ID); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
 	}

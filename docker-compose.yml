@@ -1,4 +1,6 @@
 version: '3'
+volumes:
+  reports:
 services:
   trots:
     build: "."
@@ -6,7 +8,7 @@ services:
     image: trots:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - /tmp/reports:/tmp/reports:rw
+      - reports:/tmp/reports:rw
     ports:
       - 1234:1234
     networks:

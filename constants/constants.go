@@ -51,6 +51,7 @@ const (
 	TasksDashboardRoutePattern = "/tasks/dashboard"
 
 	LighthouseReportsDirectory = "/home/chrome/reports"
+	LighthouseReportVolulme    = "report"
 	LighthouseReportFile       = "report.json"
 	LighthouseReportWaiting    = 10 * time.Second
 
