@@ -8,38 +8,42 @@ import (
 	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
+	"sync"
 )
 
 func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 	urls := chunks[chunkIndex]
-	for urlIndex, url := range urls {
-		runTask := func() {
-			testId := primitive.NewObjectID().Hex()
-			buffer := &bytes.Buffer{}
-			request := LighthouseTaskRequest{
-				SessionId: sessionId,
-				TestId:    testId,
-				Url:       url,
-			}
-			lighthouseError := executeLighthouseTask(request, buffer)
-			if lighthouseError != nil {
-				log.Printf("Lighthouse error: %s", lighthouseError.Error())
-				return
-			}
-			completeTask(sessionId, testId, url, buffer)
-			if urlIndex+1 == len(urls) {
-				defer func() {
-					nextIndex := chunkIndex + 1
-					if nextIndex == len(chunks) {
-						Unlock()
-						return
-					}
-					runTasks(sessionId, nextIndex, chunks)
-				}()
-			}
+	var waitGroup sync.WaitGroup
+
+	runTask := func(group *sync.WaitGroup, url string) {
+		defer group.Done()
+		testId := primitive.NewObjectID().Hex()
+		buffer := &bytes.Buffer{}
+		request := LighthouseTaskRequest{
+			SessionId: sessionId,
+			TestId:    testId,
+			Url:       url,
 		}
-		go runTask()
+		lighthouseError := executeLighthouseTask(request, buffer)
+		if lighthouseError != nil {
+			log.Printf("Lighthouse error: %s", lighthouseError.Error())
+			return
+		}
+		completeTask(sessionId, testId, url, buffer)
 	}
+
+	for _, url := range urls {
+		waitGroup.Add(1)
+		go runTask(&waitGroup, url)
+	}
+
+	waitGroup.Wait()
+	nextIndex := chunkIndex + 1
+	if nextIndex == len(chunks) {
+		Unlock()
+		return
+	}
+	runTasks(sessionId, nextIndex, chunks)
 }
 
 func completeTask(sessionId, testId, url string, reportContent *bytes.Buffer) {
