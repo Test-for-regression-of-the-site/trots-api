@@ -61,7 +61,7 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 	}
 	options := []string{
 		constants.Lighthouse,
-		constants.LightHouseFlagDisableGpu,
+		constants.LightHouseFlagChrome,
 		constants.LightHouseFlagOutput, constants.LightHouseFlagJson,
 		constants.LightHouseEmulatedFormFactor, request.TestType,
 		constants.LightHouseFlagOutputPath, constants.LighthouseReportsDirectory + constants.Slash + constants.LighthouseReportFile,

@@ -21,12 +21,13 @@ func LoadConfiguration() configuration.Configuration {
 		Address: viper.GetString(constants.ServerAddressKey),
 		Timeout: viper.GetDuration(constants.TimeoutKey),
 		Lighthouse: configuration.LighthouseConfiguration{
-			Image: viper.GetString(constants.LighthouseImage),
-			Tag:   viper.GetString(constants.LighthouseTag),
+			Image:       viper.GetString(constants.LighthouseImageKey),
+			Tag:         viper.GetString(constants.LighthouseTagKey),
+			ReportsPath: viper.GetString(constants.LighthouseReportsPathKey),
 		},
 		Mongo: configuration.MongoConfiguration{
-			Address: viper.GetString(constants.MongoAddress),
-			Timeout: viper.GetDuration(constants.MongoTimeout),
+			Address: viper.GetString(constants.MongoAddressKey),
+			Timeout: viper.GetDuration(constants.MongoTimeoutKey),
 		},
 	}
 }

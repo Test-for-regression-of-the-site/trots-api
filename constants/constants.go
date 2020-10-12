@@ -23,14 +23,16 @@ const (
 	Report     = "report"
 	Tests      = "tests"
 
-	ServerAddressKey = "trots.server.address"
-	TimeoutKey       = "trots.server.timeout"
-	LighthouseImage  = "trots.lighthouse.image"
-	LighthouseTag    = "trots.lighthouse.tag"
-	MongoAddress     = "trots.mongo.address"
-	MongoTimeout     = "trots.mongo.timeout"
-	MongoId          = "_id"
-	MongoSet         = "$set"
+	ServerAddressKey         = "trots.server.address"
+	TimeoutKey               = "trots.server.timeout"
+	LighthouseImageKey       = "trots.lighthouse.image"
+	LighthouseTagKey         = "trots.lighthouse.tag"
+	LighthouseReportsPathKey = "trots.lighthouse.reportsPath"
+	MongoAddressKey          = "trots.mongo.address"
+	MongoTimeoutKey          = "trots.mongo.timeout"
+
+	MongoId  = "_id"
+	MongoSet = "$set"
 
 	Dot   = "."
 	Dash  = "-"
@@ -52,7 +54,7 @@ const (
 	LighthouseReportFile       = "report.json"
 	LighthouseReportWaiting    = 10 * time.Second
 
-	LightHouseFlagDisableGpu     = "--chrome-flags=\"--headless --disable-gpu\""
+	LightHouseFlagChrome         = "--chrome-flags=\"--headless --no-sandbox --disable-gpu\""
 	LightHouseFlagOutput         = "--output"
 	LightHouseFlagOutputPath     = "--output-path"
 	LightHouseFlagJson           = "json"
