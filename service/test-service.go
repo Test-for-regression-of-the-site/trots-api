@@ -52,7 +52,7 @@ func GetDashboard() *model.DashboardResponsePayload {
 	if sessions == nil {
 		return nil
 	}
-	sessionDashboards := make(map[string]model.SessionReportPayload)
+	sessionDashboards := make(map[string][]model.TestReportPayload)
 	for _, session := range *sessions {
 		var testReports []model.TestReportPayload
 		for _, test := range session.Tests {
@@ -67,7 +67,7 @@ func GetDashboard() *model.DashboardResponsePayload {
 			}
 			testReports = append(testReports, testReport)
 		}
-		sessionDashboards[session.Id.Hex()] = model.SessionReportPayload{TestReports: testReports}
+		sessionDashboards[session.Id.Hex()] = testReports
 	}
 	return &model.DashboardResponsePayload{ProcessEnd: !working, ShortDashboard: sessionDashboards}
 }

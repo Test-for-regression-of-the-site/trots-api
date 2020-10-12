@@ -21,8 +21,8 @@ type ErrorResponsePayload struct {
 }
 
 type DashboardResponsePayload struct {
-	ProcessEnd     bool                            `json:"processEnd"`
-	ShortDashboard map[string]SessionReportPayload `json:"shortDashboard"`
+	ProcessEnd     bool                           `json:"processEnd"`
+	ShortDashboard map[string][]TestReportPayload `json:"shortDashboard"`
 }
 
 type TestReportPayload struct {
@@ -33,8 +33,4 @@ type TestReportPayload struct {
 	BestPractices     float32 `json:"bestPractices"`
 	Seo               float32 `json:"seo"`
 	ProgressiveWebApp float32 `json:"progressiveWebApp"`
-}
-
-type SessionReportPayload struct {
-	TestReports []TestReportPayload
 }
