@@ -18,7 +18,7 @@ func RunTest(request model.TestRequestPayload) {
 	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
-func GetTestReport(sessionId, testId string) *map[string]interface{} {
+func GetTestReport(sessionId, testId string) map[string]interface{} {
 	test, storageError := storage.GetTest(sessionId, testId)
 	if storageError != nil {
 		log.Printf("Storage error: %s", storageError)
@@ -40,7 +40,7 @@ func GetTestReport(sessionId, testId string) *map[string]interface{} {
 		log.Printf("Storage error: %s", storageError)
 		return nil
 	}
-	return &report
+	return report
 }
 
 func GetDashboard() *model.DashboardResponsePayload {
