@@ -69,10 +69,10 @@ linters:
     - gomnd # An analyzer to detect magic numbers. [fast: true, auto-fix: false]
     - wsl # Whitespace Linter - Forces you to use empty lines! [fast: true, auto-fix: false]
 
-staticcheck:
-  enable-all: false
-
 linters-settings:
+  staticcheck:
+    disable-all: false
+
   errcheck:
     check-type-assertions: true # checking of errors in type assetions
     check-blank: false # errors assignment to blank identifier
