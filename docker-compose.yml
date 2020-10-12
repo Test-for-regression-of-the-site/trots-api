@@ -1,6 +1,4 @@
 version: '3'
-volumes:
-  reports:
 services:
   trots:
     build: "."
@@ -8,7 +6,7 @@ services:
     image: trots:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - reports:/tmp/reports:rw
+      - $PWD/reports:/tmp/reports:rw
     ports:
       - 1234:1234
     networks:
@@ -24,7 +22,7 @@ services:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - /tmp/data/db:/data/db
+      - ./data/db:/data/db
     ports:
       - 27017:27017
     networks:

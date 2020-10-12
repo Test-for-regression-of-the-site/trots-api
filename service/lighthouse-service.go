@@ -22,20 +22,20 @@ type LighthouseTaskRequest struct {
 }
 
 func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) error {
-	directoryPath, directoryError := makeReportsDirectory(request)
+	reportsTargetPath, directoryError := makeReportsDirectory(request)
 	if directoryError != nil {
 		return directoryError
 	}
-	containerError := launchLighthouse(directoryPath, request)
+	containerError := launchLighthouse(reportsTargetPath, request)
 	if containerError != nil {
 		return containerError
 	}
 	time.Sleep(constants.LighthouseReportWaiting)
-	return handleReport(directoryPath, reportWriter)
+	return handleReport(reportsTargetPath, reportWriter)
 }
 
 func makeReportsDirectory(request LighthouseTaskRequest) (string, error) {
-	directory := provider.Configuration.Lighthouse.ReportsPath + constants.Slash + request.SessionId + constants.Slash + request.TestId
+	directory := provider.Configuration.Lighthouse.ReportsTargetPath + constants.Slash + request.SessionId + constants.Slash + request.TestId
 	if directoryError := os.MkdirAll(directory, os.ModePerm); directoryError != nil {
 		log.Printf("Directory error: %s", directoryError)
 		return "", directoryError
@@ -48,7 +48,7 @@ func makeReportsDirectory(request LighthouseTaskRequest) (string, error) {
 	return directoryPath, nil
 }
 
-func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error {
+func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) error {
 	imageOptions := docker.PullImageOptions{
 		Tag:          provider.Configuration.Lighthouse.Tag,
 		Repository:   provider.Configuration.Lighthouse.Image,
@@ -64,7 +64,7 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 		constants.LightHouseFlagChrome,
 		constants.LightHouseFlagOutput, constants.LightHouseFlagJson,
 		constants.LightHouseEmulatedFormFactor, request.TestType,
-		constants.LightHouseFlagOutputPath, constants.LighthouseReportsDirectory + constants.Slash + constants.LighthouseReportFile,
+		constants.LightHouseFlagOutputPath, reportsTargetPath + constants.Slash + constants.LighthouseReportFile,
 		request.Url,
 	}
 	containerConfig := &docker.Config{
@@ -73,10 +73,10 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 		AttachStderr: true,
 		Cmd:          options,
 	}
+	reportsSourcePath := provider.Configuration.Lighthouse.ReportsSourcePath + request.SessionId + constants.Slash + request.TestId
 	hostConfig := &docker.HostConfig{
-		Binds:      []string{constants.LighthouseReportVolulme + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},
-		CapAdd:     []string{constants.DockerSysAdminCapability},
-		Privileged: true,
+		Binds:  []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
+		CapAdd: []string{constants.DockerSysAdminCapability},
 	}
 	containerOptions := docker.CreateContainerOptions{
 		Config:     containerConfig,
@@ -111,8 +111,8 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 	return nil
 }
 
-func handleReport(directoryPath string, reportWriter io.Writer) error {
-	file, readingError := ioutil.ReadFile(filepath.FromSlash(directoryPath + constants.Slash + constants.LighthouseReportFile))
+func handleReport(reportsTargetPath string, reportWriter io.Writer) error {
+	file, readingError := ioutil.ReadFile(filepath.FromSlash(reportsTargetPath + constants.Slash + constants.LighthouseReportFile))
 	if readingError != nil {
 		log.Printf("Reading error: %s", readingError)
 		return readingError
@@ -121,11 +121,11 @@ func handleReport(directoryPath string, reportWriter io.Writer) error {
 		log.Printf("Writing error: %s", writingError)
 		return writingError
 	}
-	if removingError := os.RemoveAll(directoryPath); removingError != nil {
+	if removingError := os.RemoveAll(reportsTargetPath); removingError != nil {
 		log.Printf("Removing error: %s", removingError)
 		return removingError
 	}
-	parent, _ := filepath.Split(directoryPath)
+	parent, _ := filepath.Split(reportsTargetPath)
 	files, removingError := ioutil.ReadDir(parent)
 	if removingError != nil {
 		log.Printf("Removing error: %s", removingError)

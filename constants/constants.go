@@ -23,13 +23,14 @@ const (
 	Report     = "report"
 	Tests      = "tests"
 
-	ServerAddressKey         = "trots.server.address"
-	TimeoutKey               = "trots.server.timeout"
-	LighthouseImageKey       = "trots.lighthouse.image"
-	LighthouseTagKey         = "trots.lighthouse.tag"
-	LighthouseReportsPathKey = "trots.lighthouse.reportsPath"
-	MongoAddressKey          = "trots.mongo.address"
-	MongoTimeoutKey          = "trots.mongo.timeout"
+	ServerAddressKey               = "trots.server.address"
+	TimeoutKey                     = "trots.server.timeout"
+	LighthouseImageKey             = "trots.lighthouse.image"
+	LighthouseTagKey               = "trots.lighthouse.tag"
+	LighthouseReportsTargetPathKey = "trots.lighthouse.reportsTargetPath"
+	LighthouseReportsSourcePathKey = "trots.lighthouse.reportsSourcePath"
+	MongoAddressKey                = "trots.mongo.address"
+	MongoTimeoutKey                = "trots.mongo.timeout"
 
 	MongoId  = "_id"
 	MongoSet = "$set"
@@ -50,10 +51,8 @@ const (
 	TestIdParameterPattern     = "/{testId}"
 	TasksDashboardRoutePattern = "/tasks/dashboard"
 
-	LighthouseReportsDirectory = "/home/chrome/reports"
-	LighthouseReportVolulme    = "report"
-	LighthouseReportFile       = "report.json"
-	LighthouseReportWaiting    = 10 * time.Second
+	LighthouseReportFile    = "report.json"
+	LighthouseReportWaiting = 10 * time.Second
 
 	LightHouseFlagChrome         = "--chrome-flags=\"--headless --no-sandbox --disable-gpu\""
 	LightHouseFlagOutput         = "--output"
