@@ -11,16 +11,17 @@ type SessionEntity struct {
 
 type TestEntity struct {
 	Id                string            `bson:"id,omitempty"`
+	Url               string            `bson:"url,omitempty"`
 	ReportInformation ReportInformation `bson:"reportInformation,omitempty"`
 }
 
 type ReportInformation struct {
-	Id                string `bson:"id,omitempty"`
-	Performance       int    `bson:"performance,omitempty"`
-	Accessibility     int    `bson:"accessibility,omitempty"`
-	BestPractices     int    `bson:"bestPractices,omitempty"`
-	Seo               int    `bson:"seo,omitempty"`
-	ProgressiveWebApp int    `bson:"progressiveWebApp,omitempty"`
+	Id                string  `bson:"id,omitempty"`
+	Performance       float32 `bson:"performance,omitempty"`
+	Accessibility     float32 `bson:"accessibility,omitempty"`
+	BestPractices     float32 `bson:"bestPractices,omitempty"`
+	Seo               float32 `bson:"seo,omitempty"`
+	ProgressiveWebApp float32 `bson:"progressiveWebApp,omitempty"`
 }
 
 type ReportEntity struct {

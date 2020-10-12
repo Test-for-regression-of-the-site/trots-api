@@ -23,6 +23,7 @@ func Serve() {
 
 	render.Respond = ErrorResponder
 
+	router.Get(constants.TasksDashboardRoutePattern, getDashboard)
 	router.Route(constants.TasksRoutePattern, func(router chi.Router) {
 		router.Post(constants.Slash, tasksRoute)
 		router.Route(constants.SessionIdParameterPattern, func(router chi.Router) {

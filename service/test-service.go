@@ -39,5 +39,30 @@ func GetTestReport(sessionId string, testId string) *map[string]interface{} {
 }
 
 func GetDashboard() *model.DashboardResponsePayload {
-	return nil
+	sessions, storageError := storage.GetSessions()
+	if storageError != nil {
+		log.Printf("Storage error: %s", storageError)
+		return nil
+	}
+	if sessions == nil {
+		return nil
+	}
+	sessionDashboards := make(map[string]model.SessionReportPayload)
+	for _, session := range *sessions {
+		var testReports []model.TestReportPayload
+		for _, test := range session.Tests {
+			testReport := model.TestReportPayload{
+				Id:                test.Id,
+				Url:               test.Url,
+				Accessibility:     test.ReportInformation.Accessibility,
+				BestPractices:     test.ReportInformation.BestPractices,
+				Performance:       test.ReportInformation.Performance,
+				Seo:               test.ReportInformation.Seo,
+				ProgressiveWebApp: test.ReportInformation.ProgressiveWebApp,
+			}
+			testReports = append(testReports, testReport)
+		}
+		sessionDashboards[session.Id.Hex()] = model.SessionReportPayload{TestReports: testReports}
+	}
+	return &model.DashboardResponsePayload{ShortDashboard: sessionDashboards}
 }

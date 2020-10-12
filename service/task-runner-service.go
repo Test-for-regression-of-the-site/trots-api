@@ -2,8 +2,10 @@ package service
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/storage"
+	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 )
@@ -40,13 +42,26 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 
 func completeTask(sessionId string, testId string, reportContent *bytes.Buffer) {
 	reportId := primitive.NewObjectID()
-	test := model.TestEntity{
-		Id:                testId,
-		ReportInformation: model.ReportInformation{Id: reportId.Hex()},
+	var report map[string]interface{}
+	if jsonError := json.Unmarshal(reportContent.Bytes(), &report); jsonError != nil {
+		log.Printf("Storage error: %s", jsonError)
+		return
 	}
-	report := &model.ReportEntity{
+	categories := cast.ToStringMap(report["categories"])
+	testEntity := model.TestEntity{
+		Id: testId,
+		ReportInformation: model.ReportInformation{
+			Id:                reportId.Hex(),
+			Accessibility:     cast.ToFloat32(cast.ToStringMap(categories["accessibility"])["score"]),
+			Performance:       cast.ToFloat32(cast.ToStringMap(categories["performance"])["score"]),
+			BestPractices:     cast.ToFloat32(cast.ToStringMap(categories["best-practices"])["score"]),
+			Seo:               cast.ToFloat32(cast.ToStringMap(categories["seo"])["score"]),
+			ProgressiveWebApp: cast.ToFloat32(cast.ToStringMap(categories["pwa"])["score"]),
+		},
+	}
+	reportEntity := &model.ReportEntity{
 		Id:     reportId,
 		Report: reportContent.Bytes(),
 	}
-	storage.PutTest(sessionId, test, report)
+	storage.PutTest(sessionId, testEntity, reportEntity)
 }

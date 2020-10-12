@@ -28,3 +28,12 @@ func getTestReports(writer http.ResponseWriter, request *http.Request) {
 		render.JSON(writer, request, report)
 	}
 }
+
+func getDashboard(writer http.ResponseWriter, request *http.Request) {
+	dashboard := service.GetDashboard()
+	if dashboard != nil {
+		if renderError := render.Render(writer, request, &DashboardResponse{dashboard}); renderError != nil {
+			log.Printf(renderError.Error())
+		}
+	}
+}
