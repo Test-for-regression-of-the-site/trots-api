@@ -78,6 +78,9 @@ func Lock() {
 }
 
 func Unlock() {
+	if !working {
+		return
+	}
 	working = false
 	lock.Unlock()
 }

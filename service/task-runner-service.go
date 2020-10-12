@@ -26,17 +26,17 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 				log.Printf("Lighthouse error: %s", lighthouseError.Error())
 				return
 			}
-			defer func() {
-				completeTask(sessionId, testId, url, buffer)
-				if urlIndex+1 >= len(urls) {
+			completeTask(sessionId, testId, url, buffer)
+			if urlIndex+1 >= len(urls) {
+				defer func() {
 					nextIndex := chunkIndex + 1
 					if nextIndex >= len(chunks) {
 						Unlock()
 						return
 					}
 					runTasks(sessionId, nextIndex, chunks)
-				}
-			}()
+				}()
+			}
 		}
 		go runTask()
 	}
