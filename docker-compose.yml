@@ -6,7 +6,7 @@ services:
     image: trots:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ./reports:/opt/trots/reports:rw
+      - /tmp/reports:/tmp/reports:rw
     ports:
       - 1234:1234
     links:

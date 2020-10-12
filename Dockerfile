@@ -13,10 +13,11 @@ RUN cd cmd && go build -o trots
 
 FROM ubuntu:18.04
 
-RUN mkdir /opt/trots
-COPY --from=builder /project/cmd/trots /opt/trots
-COPY --from=builder /project/trots.yml /opt/trots
-RUN chmod +x /opt/trots/trots
-WORKDIR /opt/trots
+RUN mkdir /home/trots
+RUN mkdir /tmp/reports
+COPY --from=builder /project/cmd/trots /home/trots
+COPY --from=builder /project/trots.yml /home/trots
+RUN chmod +x /home/trots/trots
+WORKDIR /home/trots
 
 ENTRYPOINT ["./trots"]
