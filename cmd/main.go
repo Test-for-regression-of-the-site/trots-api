@@ -7,5 +7,5 @@ import (
 
 func main() {
 	server.Serve()
-	defer storage.Disconnect()
+	storage.Disconnect()
 }

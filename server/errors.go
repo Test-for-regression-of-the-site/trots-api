@@ -10,8 +10,8 @@ type ErrorResponse struct {
 	*model.ErrorResponsePayload
 }
 
-func (error *ErrorResponse) Render(writer http.ResponseWriter, request *http.Request) error {
-	render.Status(request, error.Status)
+func (errorResponse *ErrorResponse) Render(writer http.ResponseWriter, request *http.Request) error {
+	render.Status(request, errorResponse.Status)
 	return nil
 }
 
@@ -27,8 +27,8 @@ func ErrorResponder(writer http.ResponseWriter, request *http.Request, payload i
 	render.DefaultResponder(writer, request, payload)
 }
 
-func InvalidRequest(error error) render.Renderer {
-	return &ErrorResponse{&model.ErrorResponsePayload{Error: error, Status: http.StatusBadRequest, Message: error.Error()}}
+func InvalidRequest(requestError error) render.Renderer {
+	return &ErrorResponse{&model.ErrorResponsePayload{Error: requestError, Status: http.StatusBadRequest, Message: requestError.Error()}}
 }
 
 var NotFound = &ErrorResponse{&model.ErrorResponsePayload{Status: http.StatusNotFound, Message: "Not found"}}

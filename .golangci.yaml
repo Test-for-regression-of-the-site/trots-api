@@ -93,7 +93,7 @@ linters-settings:
     statements: 50
 
   gocognit:
-    min-complexity: 10 # minimal code complexity to report
+    min-complexity: 25 # minimal code complexity to report
 
   goconst:
     min-len: 2
@@ -133,7 +133,7 @@ linters-settings:
         checks: argument,case,condition,operation,return,assign
 
   govet:
-    check-shadowing: true
+    check-shadowing: false
     settings: {} # settings per analyzer
     enable-all: false
     enable:
@@ -141,7 +141,6 @@ linters-settings:
       - atomic # check for common mistakes using the sync/atomic package
       - bools # check for common mistakes involving boolean operators
       - buildtag # check that +build tags are well-formed and correctly located
-      - composites # check for unkeyed composite literals
       - copylocks # check for locks erroneously passed by value
       - errorsas # report passing non-pointer or non-error values to errors.As
       - loopclosure # check references to loop variables from within nested functions
@@ -163,7 +162,7 @@ linters-settings:
       - httpresponse # check for mistakes using HTTP responses
 
   lll:
-    line-height: 120
+    line-height: 160
     tab-width: 4
 
   maligned:

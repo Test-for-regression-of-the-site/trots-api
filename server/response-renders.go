@@ -9,6 +9,6 @@ type DashboardResponse struct {
 	*model.DashboardResponsePayload
 }
 
-func (error *DashboardResponse) Render(writer http.ResponseWriter, request *http.Request) error {
+func (dashboardResponse *DashboardResponse) Render(writer http.ResponseWriter, request *http.Request) error {
 	return nil
 }
