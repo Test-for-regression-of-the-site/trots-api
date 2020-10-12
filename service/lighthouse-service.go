@@ -35,7 +35,7 @@ func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer
 }
 
 func makeReportsDirectory(request LighthouseTaskRequest) (string, error) {
-	directory := constants.LighthouseHostReportDirectory + constants.Slash + request.SessionId + constants.Slash + request.TestId
+	directory := provider.Configuration.Lighthouse.ReportsPath + constants.Slash + request.SessionId + constants.Slash + request.TestId
 	if directoryError := os.MkdirAll(directory, os.ModePerm); directoryError != nil {
 		log.Printf("Directory error: %s", directoryError)
 		return "", directoryError

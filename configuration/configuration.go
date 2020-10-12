@@ -3,8 +3,9 @@ package configuration
 import "time"
 
 type LighthouseConfiguration struct {
-	Image string
-	Tag   string
+	Image       string
+	Tag         string
+	ReportsPath string
 }
 
 type MongoConfiguration struct {

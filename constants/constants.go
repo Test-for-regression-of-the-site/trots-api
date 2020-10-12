@@ -32,11 +32,10 @@ const (
 	MongoId          = "_id"
 	MongoSet         = "$set"
 
-	Dot    = "."
-	Dash   = "-"
-	Slash  = "/"
-	Colon  = ":"
-	Latest = "latest"
+	Dot   = "."
+	Dash  = "-"
+	Slash = "/"
+	Colon = ":"
 
 	DockerReadWriteMode      = "rw"
 	DockerSysAdminCapability = "SYS_ADMIN"
