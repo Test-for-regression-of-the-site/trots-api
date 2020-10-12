@@ -70,7 +70,7 @@ linters:
     - wsl # Whitespace Linter - Forces you to use empty lines! [fast: true, auto-fix: false]
 
 staticcheck:
-  disable-all: true
+  enable-all: false
 
 linters-settings:
   errcheck:
