@@ -155,7 +155,7 @@ func GetSessions() (*[]model.SessionEntity, error) {
 	var sessions []model.SessionEntity
 	for cursor.Next(mongoContext) {
 		var session model.SessionEntity
-		if mongoError = cursor.Decode(session); mongoError != nil {
+		if mongoError = cursor.Decode(&session); mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
 			return nil, mongoError
 		}

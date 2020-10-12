@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/cors v1.1.1
 	github.com/go-chi/render v1.0.1
 	github.com/google/uuid v1.1.2
+	github.com/spf13/cast v1.3.0
 	github.com/spf13/viper v1.7.1
 	go.mongodb.org/mongo-driver v1.4.2
 )

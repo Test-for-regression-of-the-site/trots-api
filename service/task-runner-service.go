@@ -27,7 +27,7 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 			}
 
 			runNextTask := func() {
-				completeTask(sessionId, testId, buffer)
+				completeTask(sessionId, testId, url, buffer)
 				nextChunkIndex := chunkIndex + 1
 				if nextChunkIndex < len(chunks) {
 					runTasks(sessionId, nextChunkIndex, chunks)
@@ -40,7 +40,7 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 	}
 }
 
-func completeTask(sessionId string, testId string, reportContent *bytes.Buffer) {
+func completeTask(sessionId string, testId string, url string, reportContent *bytes.Buffer) {
 	reportId := primitive.NewObjectID()
 	var report map[string]interface{}
 	if jsonError := json.Unmarshal(reportContent.Bytes(), &report); jsonError != nil {
@@ -49,7 +49,8 @@ func completeTask(sessionId string, testId string, reportContent *bytes.Buffer) 
 	}
 	categories := cast.ToStringMap(report["categories"])
 	testEntity := model.TestEntity{
-		Id: testId,
+		Id:  testId,
+		Url: url,
 		ReportInformation: model.ReportInformation{
 			Id:                reportId.Hex(),
 			Accessibility:     cast.ToFloat32(cast.ToStringMap(categories["accessibility"])["score"]),
