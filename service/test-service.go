@@ -15,7 +15,7 @@ var working = false
 
 func RunTest(request model.TestRequestPayload) {
 	Lock()
-	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
+	go runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
 func GetTestReport(sessionId, testId string) map[string]interface{} {
@@ -78,9 +78,6 @@ func Lock() {
 }
 
 func Unlock() {
-	if !working {
-		return
-	}
 	working = false
 	lock.Unlock()
 }
