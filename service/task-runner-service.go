@@ -11,7 +11,8 @@ import (
 )
 
 func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
-	for _, url := range chunks[chunkIndex] {
+	urls := chunks[chunkIndex]
+	for urlIndex, url := range urls {
 		runTask := func() {
 			testId := primitive.NewObjectID().Hex()
 			buffer := &bytes.Buffer{}
@@ -25,18 +26,17 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 				log.Printf("Lighthouse error: %s", lighthouseError.Error())
 				return
 			}
-
-			runNextTask := func() {
+			defer func() {
 				completeTask(sessionId, testId, url, buffer)
-				nextChunkIndex := chunkIndex + 1
-				if nextChunkIndex >= len(chunks) {
-					Unlock()
-					return
+				if urlIndex+1 >= len(urls) {
+					nextIndex := chunkIndex + 1
+					if nextIndex >= len(chunks) {
+						Unlock()
+						return
+					}
+					runTasks(sessionId, nextIndex, chunks)
 				}
-				runTasks(sessionId, nextChunkIndex, chunks)
-			}
-
-			defer runNextTask()
+			}()
 		}
 		go runTask()
 	}
