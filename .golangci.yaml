@@ -71,7 +71,7 @@ linters:
 
 linters-settings:
   staticcheck:
-    disable-all: false
+    disable-all: true
 
   errcheck:
     check-type-assertions: true # checking of errors in type assetions
