@@ -27,8 +27,11 @@ func GetTestReport(sessionId string, testId string) *map[string]interface{} {
 		log.Printf("Storage error: %s", storageError)
 		return nil
 	}
+	if reportData == nil {
+		return nil
+	}
 	var report map[string]interface{}
-	if storageError = json.Unmarshal(*reportData, &report); storageError != nil {
+	if storageError = json.Unmarshal(reportData.Report, &report); storageError != nil {
 		log.Printf("Storage error: %s", storageError)
 		return nil
 	}

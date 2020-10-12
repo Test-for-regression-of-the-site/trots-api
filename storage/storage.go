@@ -118,7 +118,7 @@ func GetTest(sessionId string, testId string) (*model.TestEntity, error) {
 	return nil, nil
 }
 
-func GetReport(reportId string) (*[]byte, error) {
+func GetReport(reportId string) (*model.ReportEntity, error) {
 	id, mongoError := primitive.ObjectIDFromHex(reportId)
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
@@ -135,7 +135,7 @@ func GetReport(reportId string) (*[]byte, error) {
 	if !cursor.Next(mongoContext) {
 		return nil, nil
 	}
-	var report []byte
+	var report model.ReportEntity
 	if mongoError := cursor.Decode(&report); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
