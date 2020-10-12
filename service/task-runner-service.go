@@ -11,7 +11,6 @@ import (
 )
 
 func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
-	Lock()
 	for _, url := range chunks[chunkIndex] {
 		runTask := func() {
 			testId := primitive.NewObjectID().Hex()

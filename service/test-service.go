@@ -14,6 +14,7 @@ var lock = sync.Mutex{}
 var working = false
 
 func RunTest(request model.TestRequestPayload) {
+	Lock()
 	runTasks(primitive.NewObjectID().Hex(), 0, extensions.Chunks(request.Links, request.Parallel))
 }
 
