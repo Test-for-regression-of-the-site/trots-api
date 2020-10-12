@@ -98,7 +98,7 @@ func handleReport(directoryPath string, reportWriter io.Writer) error {
 		return readingError
 	}
 	if _, writingError := reportWriter.Write(file); writingError != nil {
-		log.Printf("Writting error: %s", writingError)
+		log.Printf("Writing error: %s", writingError)
 		return writingError
 	}
 	if removingError := os.RemoveAll(directoryPath); removingError != nil {
