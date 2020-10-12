@@ -18,6 +18,7 @@ type LighthouseTaskRequest struct {
 	SessionId string
 	TestId    string
 	Url       string
+	TestType  string
 }
 
 func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) error {
@@ -58,12 +59,20 @@ func launchLighthouse(directoryPath string, request LighthouseTaskRequest) error
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
 	}
+	options := []string{
+		constants.Lighthouse,
+		constants.LightHouseFlagDisableGpu,
+		constants.LightHouseFlagOutput, constants.LightHouseFlagJson,
+		constants.LightHouseEmulatedFormFactor, request.TestType,
+		constants.LightHouseFlagOutputPath, constants.LighthouseReportsDirectory + constants.Slash + constants.LighthouseReportFile,
+		request.Url,
+	}
 	containerConfig := &docker.Config{
 		Image:        provider.Configuration.Lighthouse.Image + constants.Colon + provider.Configuration.Lighthouse.Tag,
 		Tty:          true,
 		AttachStdout: true,
 		AttachStderr: true,
-		Cmd:          append(constants.LighthouseOptions, request.Url),
+		Cmd:          options,
 	}
 	hostConfig := &docker.HostConfig{
 		Binds:      []string{directoryPath + constants.Colon + constants.LighthouseReportsDirectory + constants.Colon + constants.DockerReadWriteMode},

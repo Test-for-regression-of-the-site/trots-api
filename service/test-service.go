@@ -18,7 +18,7 @@ func RunTest(request model.TestRequestPayload) int64 {
 	Lock()
 	creationTime := time.Now().Unix()
 	sessionId := model.SessionIdentifier{CreationTime: creationTime, Id: primitive.NewObjectID().Hex()}
-	go runTasks(sessionId, 0, extensions.Chunks(request.Links, request.Parallel))
+	go runTasks(sessionId, request.TestType, 0, extensions.Chunks(request.Links, request.Parallel))
 	return creationTime
 }
 

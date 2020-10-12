@@ -11,7 +11,7 @@ import (
 	"sync"
 )
 
-func runTasks(sessionId model.SessionIdentifier, chunkIndex int, chunks [][]string) {
+func runTasks(sessionId model.SessionIdentifier, testType string, chunkIndex int, chunks [][]string) {
 	urls := chunks[chunkIndex]
 	var waitGroup sync.WaitGroup
 
@@ -23,6 +23,7 @@ func runTasks(sessionId model.SessionIdentifier, chunkIndex int, chunks [][]stri
 			SessionId: sessionId.Id,
 			TestId:    testId,
 			Url:       url,
+			TestType:  testType,
 		}
 		lighthouseError := executeLighthouseTask(request, buffer)
 		if lighthouseError != nil {
@@ -43,7 +44,7 @@ func runTasks(sessionId model.SessionIdentifier, chunkIndex int, chunks [][]stri
 		Unlock()
 		return
 	}
-	runTasks(sessionId, nextIndex, chunks)
+	runTasks(sessionId, testType, nextIndex, chunks)
 }
 
 func completeTask(sessionId model.SessionIdentifier, testId, url string, reportContent *bytes.Buffer) {

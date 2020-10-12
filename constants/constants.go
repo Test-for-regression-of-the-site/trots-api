@@ -13,13 +13,6 @@ var (
 		AllowCredentials: false,
 		MaxAge:           300,
 	}
-
-	LighthouseOptions = []string{
-		"lighthouse",
-		"--chrome-flags=\"--headless --disable-gpu\"",
-		"--output", "json",
-		"--output-path", LighthouseReportsDirectory + Slash + LighthouseReportFile,
-	}
 )
 
 const (
@@ -60,4 +53,10 @@ const (
 	LighthouseReportFile          = "report.json"
 	LighthouseHostReportDirectory = "reports"
 	LighthouseReportWaiting       = 10 * time.Second
+
+	LightHouseFlagDisableGpu     = "--chrome-flags=\"--headless --disable-gpu\""
+	LightHouseFlagOutput         = "--output"
+	LightHouseFlagOutputPath     = "--output-path"
+	LightHouseFlagJson           = "json"
+	LightHouseEmulatedFormFactor = "--emulated-form-factor"
 )
