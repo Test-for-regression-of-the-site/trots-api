@@ -38,10 +38,15 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 	}
 }
 
-func completeTask(sessionId string, testId string, report *bytes.Buffer) {
+func completeTask(sessionId string, testId string, reportContent *bytes.Buffer) {
+	reportId := primitive.NewObjectID().Hex()
 	test := model.TestEntity{
-		Id:     testId,
-		Report: report.Bytes(),
+		Id:                testId,
+		ReportInformation: model.ReportInformation{Id: reportId},
 	}
-	storage.PutTest(sessionId, test)
+	report := &model.ReportEntity{
+		Id:     reportId,
+		Report: reportContent.Bytes(),
+	}
+	storage.PutTest(sessionId, test, report)
 }

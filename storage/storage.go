@@ -19,10 +19,15 @@ type MongoStorage struct {
 
 var storage = connect(provider.Configuration.Mongo)
 
-func PutTest(sessionId string, test model.TestEntity) {
-	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
+func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity) {
+	sessionCollection := storage.client.Database(constants.Trots).Collection(constants.Session)
+	reportCollection := storage.client.Database(constants.Trots).Collection(constants.Report)
 	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
 	defer cancel()
+	if _, mongoError := reportCollection.InsertOne(mongoContext, report); mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return
+	}
 	session, mongoError := GetSession(sessionId)
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
@@ -38,7 +43,7 @@ func PutTest(sessionId string, test model.TestEntity) {
 			Id:    id,
 			Tests: []model.TestEntity{test},
 		}
-		if _, mongoError := collection.InsertOne(mongoContext, session); mongoError != nil {
+		if _, mongoError := sessionCollection.InsertOne(mongoContext, session); mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
 		}
 		return
@@ -49,7 +54,7 @@ func PutTest(sessionId string, test model.TestEntity) {
 		return
 	}
 	session.Tests = append(session.Tests, test)
-	if _, mongoError := collection.UpdateOne(mongoContext, bson.D{{constants.MongoId, id}}, session); mongoError != nil {
+	if _, mongoError := sessionCollection.UpdateOne(mongoContext, bson.D{{constants.MongoId, id}}, session); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 	}
 }
@@ -94,6 +99,31 @@ func GetTest(sessionId string, testId string) (*model.TestEntity, error) {
 		}
 	}
 	return nil, nil
+}
+
+func GetReport(reportId string) (*[]byte, error) {
+	id, mongoError := primitive.ObjectIDFromHex(reportId)
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	collection := storage.client.Database(constants.Trots).Collection(constants.Report)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
+	defer cancel()
+	cursor, mongoError := collection.Find(mongoContext, bson.D{{constants.MongoId, id}})
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	if !cursor.Next(mongoContext) {
+		return nil, nil
+	}
+	var report []byte
+	if mongoError := cursor.Decode(&report); mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	return &report, nil
 }
 
 func GetSessions() (*[]model.SessionEntity, error) {

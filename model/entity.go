@@ -10,6 +10,15 @@ type SessionEntity struct {
 }
 
 type TestEntity struct {
+	Id                string            `bson:"id,omitempty"`
+	ReportInformation ReportInformation `bson:"reportInformation,omitempty"`
+}
+
+type ReportInformation struct {
+	Id string `bson:"id,omitempty"`
+}
+
+type ReportEntity struct {
 	Id     string `bson:"id,omitempty"`
 	Report []byte `bson:"report,omitempty"`
 }
