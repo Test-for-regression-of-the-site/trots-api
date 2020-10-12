@@ -20,43 +20,58 @@ type MongoStorage struct {
 var storage = connect(provider.Configuration.Mongo)
 
 func PutTest(sessionId string, test model.TestEntity, report *model.ReportEntity) {
-	sessionCollection := storage.client.Database(constants.Trots).Collection(constants.Session)
-	reportCollection := storage.client.Database(constants.Trots).Collection(constants.Report)
 	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
 	defer cancel()
-	if _, mongoError := reportCollection.InsertOne(mongoContext, report); mongoError != nil {
-		log.Printf("Mongo error: %s", mongoError)
-		return
-	}
-	session, mongoError := GetSession(sessionId)
-	if mongoError != nil {
-		log.Printf("Mongo error: %s", mongoError)
-		return
-	}
-	if session == nil {
+	mongoError := storage.client.UseSession(mongoContext, func(mongoSession mongo.SessionContext) error {
+		if mongoError := mongoSession.StartTransaction(); mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return mongoError
+		}
+		sessionCollection := storage.client.Database(constants.Trots).Collection(constants.Session)
+		reportCollection := storage.client.Database(constants.Trots).Collection(constants.Report)
+		if _, mongoError := reportCollection.InsertOne(mongoContext, report); mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return mongoError
+		}
+		session, mongoError := GetSession(sessionId)
+		if mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return mongoError
+		}
+		if session == nil {
+			id, mongoError := primitive.ObjectIDFromHex(sessionId)
+			if mongoError != nil {
+				log.Printf("Mongo error: %s", mongoError)
+				return mongoError
+			}
+			session = &model.SessionEntity{
+				Id:    id,
+				Tests: []model.TestEntity{test},
+			}
+			if _, mongoError := sessionCollection.InsertOne(mongoContext, session); mongoError != nil {
+				log.Printf("Mongo error: %s", mongoError)
+			}
+			return mongoError
+		}
 		id, mongoError := primitive.ObjectIDFromHex(sessionId)
 		if mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
-			return
+			return mongoError
 		}
-		session = &model.SessionEntity{
-			Id:    id,
-			Tests: []model.TestEntity{test},
-		}
-		if _, mongoError := sessionCollection.InsertOne(mongoContext, session); mongoError != nil {
+		session.Tests = append(session.Tests, test)
+		filter := bson.D{{constants.MongoId, id}}
+		update := bson.D{{constants.MongoSet, bson.D{{constants.Tests, session.Tests}}}}
+		if _, mongoError := sessionCollection.UpdateOne(mongoContext, filter, update); mongoError != nil {
 			log.Printf("Mongo error: %s", mongoError)
+			return mongoError
 		}
-		return
-	}
-	id, mongoError := primitive.ObjectIDFromHex(sessionId)
+		if mongoError := mongoSession.CommitTransaction(mongoContext); mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return mongoError
+		}
+		return nil
+	})
 	if mongoError != nil {
-		log.Printf("Mongo error: %s", mongoError)
-		return
-	}
-	session.Tests = append(session.Tests, test)
-	filter := bson.D{{constants.MongoId, id}}
-	update := bson.D{{constants.MongoSet, bson.D{{constants.Tests, session.Tests}}}}
-	if _, mongoError := sessionCollection.UpdateOne(mongoContext, filter, update); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 	}
 }
