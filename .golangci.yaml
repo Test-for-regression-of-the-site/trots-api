@@ -32,7 +32,7 @@ linters:
     - deadcode # Finds unused code [fast: true, auto-fix: false]
     - depguard # Go linter that checks if package imports are in a list of acceptable packages [fast: true, auto-fix: false]
     - dogsled # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f()) [fast: true, auto-fix: false]
-    - errcheck # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases [fast: true, auto-fix: false]
+  # - errcheck # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases [fast: true, auto-fix: false]
     - funlen # Tool for detection of long functions [fast: true, auto-fix: false]
     - ineffassign # Detects when assignments to existing variables are not used [fast: true, auto-fix: false]
     - gocognit # Computes and checks the cognitive complexity of functions [fast: true, auto-fix: false]
@@ -68,6 +68,9 @@ linters:
     - gochecknoinits # Checks that no init functions are present in Go code [fast: true, auto-fix: false]
     - gomnd # An analyzer to detect magic numbers. [fast: true, auto-fix: false]
     - wsl # Whitespace Linter - Forces you to use empty lines! [fast: true, auto-fix: false]
+
+staticcheck:
+  disable-all: true
 
 linters-settings:
   errcheck:
@@ -155,7 +158,7 @@ linters-settings:
       - unreachable # check for unreachable code
       - unsafeptr # check for invalid conversions of uintptr to unsafe.Pointer
       - unusedresult # check for unused results of calls to some functions
-    disable-all: false
+    disable-all: true
     disable:
       - asmdecl # report mismatches between assembly files and Go declarations
       - cgocall # detect some violations of the cgo pointer passing rules
