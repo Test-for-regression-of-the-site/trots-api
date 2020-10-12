@@ -26,6 +26,7 @@ const (
 	Trots      = "trots"
 	Yml        = "yaml"
 	Lighthouse = "lighthouse"
+	Session    = "session"
 
 	ServerAddressKey = "trots.server.address"
 	TimeoutKey       = "trots.server.timeout"

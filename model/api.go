@@ -26,7 +26,7 @@ type DashboardResponsePayload struct {
 }
 
 type TestReportPayload struct {
-	Id                string `json:"id"`
+	Id                string `json:"Id"`
 	Url               string `json:"url"`
 	Performance       int    `json:"performance"`
 	Accessibility     int    `json:"accessibility"`

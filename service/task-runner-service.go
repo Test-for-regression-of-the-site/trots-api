@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/storage"
 	"github.com/google/uuid"
 	"log"
@@ -38,5 +39,9 @@ func runTasks(sessionId string, chunkIndex int, chunks [][]string) {
 }
 
 func completeTask(sessionId string, testId string, report *bytes.Buffer) {
-	storage.PutReport(sessionId, testId, report)
+	test := model.TestEntity{
+		Id:     testId,
+		Report: report.Bytes(),
+	}
+	storage.PutTest(sessionId, test)
 }

@@ -1,30 +1,69 @@
 package storage
 
 import (
-	"bytes"
 	"context"
+	"encoding/hex"
 	"github.com/Test-for-regression-of-the-site/trots-api/configuration"
+	"github.com/Test-for-regression-of-the-site/trots-api/constants"
+	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/provider"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 )
 
 type MongoStorage struct {
-	client  *mongo.Client
-	context *context.Context
+	client *mongo.Client
 }
 
 var storage = connect(provider.Configuration.Mongo)
 
-func PutReport(sessionId string, testId string, report *bytes.Buffer) {
-	collection := storage.client.Database("testing").Collection("numbers")
-	document := bson.M{"sessionId": sessionId, "testId": testId, "report": report.Bytes()}
-	if _, mongoError := collection.InsertOne(*storage.context, document); mongoError != nil {
+func PutTest(sessionId string, test model.TestEntity) {
+	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
+	defer cancel()
+	session, mongoError := GetSession(sessionId)
+	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return
 	}
+	if session == nil {
+		id, mongoError := primitive.ObjectIDFromHex(hex.EncodeToString([]byte(sessionId)))
+		if mongoError != nil {
+			log.Printf("Mongo error: %s", mongoError)
+			return
+		}
+		session = &model.SessionEntity{
+			Id:    id,
+			Tests: []model.TestEntity{test},
+		}
+	}
+	session.Tests = append(session.Tests, test)
+	if _, mongoError := collection.InsertOne(mongoContext, session); mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+	}
+}
+
+func GetSession(sessionId string) (*model.SessionEntity, error) {
+	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
+	defer cancel()
+	cursor, mongoError := collection.Find(mongoContext, bson.D{{"_id", sessionId}})
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	if !cursor.Next(mongoContext) {
+		return nil, nil
+	}
+	var session model.SessionEntity
+	if mongoError := cursor.Decode(session); mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	return &session, nil
 }
 
 func connect(configuration configuration.MongoConfiguration) *MongoStorage {
@@ -37,14 +76,12 @@ func connect(configuration configuration.MongoConfiguration) *MongoStorage {
 	if mongoError = client.Connect(mongoContext); mongoError != nil {
 		log.Panicf("Mongo error: %s", mongoError)
 	}
-	storage := &MongoStorage{client: client, context: &mongoContext}
-	defer storage.disconnect()
 	log.Printf("Mongo client connected to: %s", configuration.Address)
-	return storage
+	return &MongoStorage{client: client}
 }
 
-func (storage *MongoStorage) disconnect() {
-	if disconnectError := storage.client.Disconnect(*storage.context); disconnectError != nil {
+func Disconnect() {
+	if disconnectError := storage.client.Disconnect(context.Background()); disconnectError != nil {
 		log.Printf("Mongo error: %s", disconnectError)
 	}
 }
