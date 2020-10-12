@@ -46,19 +46,24 @@ func PutTest(sessionId string, test model.TestEntity) {
 }
 
 func GetSession(sessionId string) (*model.SessionEntity, error) {
-	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
-	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
-	defer cancel()
-	cursor, mongoError := collection.Find(mongoContext, bson.D{{"_id", sessionId}})
+	id, mongoError := primitive.ObjectIDFromHex(sessionId)
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
 	}
-	if !cursor.TryNext(mongoContext) {
+	collection := storage.client.Database(constants.Trots).Collection(constants.Session)
+	mongoContext, cancel := context.WithTimeout(context.Background(), provider.Configuration.Mongo.Timeout)
+	defer cancel()
+	cursor, mongoError := collection.Find(mongoContext, bson.D{{"_id", id}})
+	if mongoError != nil {
+		log.Printf("Mongo error: %s", mongoError)
+		return nil, mongoError
+	}
+	if !cursor.Next(mongoContext) {
 		return nil, nil
 	}
 	var session model.SessionEntity
-	if mongoError := cursor.Decode(session); mongoError != nil {
+	if mongoError := cursor.Decode(&session); mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
 	}
@@ -70,6 +75,9 @@ func GetTest(sessionId string, testId string) (*model.TestEntity, error) {
 	if mongoError != nil {
 		log.Printf("Mongo error: %s", mongoError)
 		return nil, mongoError
+	}
+	if session == nil {
+		return nil, nil
 	}
 	for _, test := range session.Tests {
 		if test.Id == testId {

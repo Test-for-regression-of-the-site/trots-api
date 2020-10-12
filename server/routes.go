@@ -23,5 +23,8 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 func getTestReports(writer http.ResponseWriter, request *http.Request) {
 	sessionId := request.Context().Value(constants.SessionIdParameter).(string)
 	testId := request.Context().Value(constants.TestIdParameter).(string)
-	service.GetTestReport(sessionId, testId)
+	report := service.GetTestReport(sessionId, testId)
+	if report != nil {
+		render.JSON(writer, request, report)
+	}
 }
