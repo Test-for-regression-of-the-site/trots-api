@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
-	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/service"
 	"github.com/go-chi/render"
 	"log"
@@ -17,10 +16,7 @@ func tasksRoute(writer http.ResponseWriter, request *http.Request) {
 		}
 		return
 	}
-	creationTime := service.RunTest(*testRequest.TestRequestPayload)
-	if renderError := render.Render(writer, request, &TestResponse{&model.TestResponsePayload{CreationTime: creationTime}}); renderError != nil {
-		log.Printf(renderError.Error())
-	}
+	service.RunTest(*testRequest.TestRequestPayload)
 	writer.WriteHeader(http.StatusOK)
 }
 

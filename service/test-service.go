@@ -14,12 +14,15 @@ import (
 var lock = sync.Mutex{}
 var working = false
 
-func RunTest(request model.TestRequestPayload) int64 {
+func RunTest(request model.TestRequestPayload) {
 	Lock()
-	creationTime := time.Now().Unix()
-	sessionId := model.SessionIdentifier{CreationTime: creationTime, Id: primitive.NewObjectID().Hex()}
-	go runTasks(sessionId, request.TestType, 0, extensions.Chunks(request.Links, request.Parallel))
-	return creationTime
+	creationTime := time.Now().UTC().UnixNano() / 1e6
+	sessionId := model.SessionIdentifier{
+		CreationTime: creationTime,
+		Id:           primitive.NewObjectID().Hex(),
+	}
+	chunks := extensions.Chunks(request.Links, request.Parallel)
+	go runTasks(sessionId, request.TestType, 0, chunks)
 }
 
 func GetTestReport(sessionId, testId string) map[string]interface{} {

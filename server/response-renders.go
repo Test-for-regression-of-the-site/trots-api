@@ -12,11 +12,3 @@ type DashboardResponse struct {
 func (dashboardResponse *DashboardResponse) Render(writer http.ResponseWriter, request *http.Request) error {
 	return nil
 }
-
-type TestResponse struct {
-	*model.TestResponsePayload
-}
-
-func (testResponse *TestResponse) Render(writer http.ResponseWriter, request *http.Request) error {
-	return nil
-}
