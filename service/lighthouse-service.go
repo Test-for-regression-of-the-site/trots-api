@@ -75,8 +75,9 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 	}
 	reportsSourcePath := provider.Configuration.Lighthouse.ReportsSourcePath + constants.Slash + request.SessionId + constants.Slash + request.TestId
 	hostConfig := &docker.HostConfig{
-		Binds:  []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
-		CapAdd: []string{constants.DockerSysAdminCapability},
+		Binds:      []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
+		CapAdd:     []string{constants.DockerSysAdminCapability},
+		AutoRemove: true,
 	}
 	containerOptions := docker.CreateContainerOptions{
 		Config:     containerConfig,

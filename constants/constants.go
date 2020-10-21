@@ -54,7 +54,7 @@ const (
 	LighthouseReportFile    = "report.json"
 	LighthouseReportWaiting = 10 * time.Second
 
-	LightHouseFlagChrome         = "--chrome-flags=\"--headless --no-sandbox --disable-gpu\""
+	LightHouseFlagChrome         = "--chrome-flags=\"--headless --no-sandbox --disable-dev-shm-usage --disable-gpu\""
 	LightHouseFlagOutput         = "--output"
 	LightHouseFlagOutputPath     = "--output-path"
 	LightHouseFlagJson           = "json"
