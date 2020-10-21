@@ -75,9 +75,8 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 	}
 	reportsSourcePath := provider.Configuration.Lighthouse.ReportsSourcePath + constants.Slash + request.SessionId + constants.Slash + request.TestId
 	hostConfig := &docker.HostConfig{
-		Binds:      []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
-		CapAdd:     []string{constants.DockerSysAdminCapability},
-		AutoRemove: true,
+		Binds:  []string{reportsSourcePath + constants.Colon + reportsTargetPath + constants.Colon + constants.DockerReadWriteMode},
+		CapAdd: []string{constants.DockerSysAdminCapability},
 	}
 	containerOptions := docker.CreateContainerOptions{
 		Config:     containerConfig,
@@ -89,6 +88,12 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
 	}
+	defer func() {
+		dockerClient.RemoveContainer(docker.RemoveContainerOptions{
+			ID:    containerId.ID,
+			Force: true,
+		})
+	}()
 	if dockerError = dockerClient.StartContainer(containerId.ID, hostConfig); dockerError != nil {
 		log.Printf("Docker error: %s", dockerError)
 		return dockerError
