@@ -54,9 +54,13 @@ const (
 	LighthouseReportFile    = "report.json"
 	LighthouseReportWaiting = 10 * time.Second
 
-	LightHouseFlagChrome         = "--chrome-flags=\"--headless --no-sandbox --disable-dev-shm-usage --disable-gpu\""
-	LightHouseFlagOutput         = "--output"
-	LightHouseFlagOutputPath     = "--output-path"
-	LightHouseFlagJson           = "json"
-	LightHouseEmulatedFormFactor = "--emulated-form-factor"
+	LightHouseFlagChrome                     = "--chrome-flags=\"--headless --no-sandbox --disable-dev-shm-usage --disable-gpu\""
+	LightHouseFlagOutput                     = "--output"
+	LightHouseFlagOutputPath                 = "--output-path"
+	LightHouseFlagJson                       = "json"
+	LightHouseEmulatedFormFactor             = "--emulated-form-factor"
+	LightHouseTrotlingMethod                 = "--throttling-method"
+	LightHouseTrotlingThroughputKbps         = "--throttling.throughputKbps"
+	LightHouseTrotlingDownloadThroughputKbps = "--throttling.downloadThroughputKbps"
+	LightHouseTrotlingUploadThroughputKbps   = "--throttling.uploadThroughputKbps"
 )

@@ -5,6 +5,15 @@ type TestRequestPayload struct {
 	Links      []string `json:"links"`
 	Parallel   int      `json:"parallel"`
 	TestType   string   `json:"testType"`
+	Trotling   Trotling `json:"trotling"`
+}
+
+type Trotling struct {
+	Simulate     bool   `json:"simulate"`
+	Kbps         string `json:"kbps"`
+	DownloadKbps string `json:"downloadKbps"`
+	UploadKbps   string `json:"uploadKbps"`
+	Method       string `json:"method"`
 }
 
 type ErrorResponsePayload struct {

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Test-for-regression-of-the-site/trots-api/constants"
+	"github.com/Test-for-regression-of-the-site/trots-api/model"
 	"github.com/Test-for-regression-of-the-site/trots-api/provider"
 	docker "github.com/fsouza/go-dockerclient"
 	"io"
@@ -19,6 +20,7 @@ type LighthouseTaskRequest struct {
 	TestId    string
 	Url       string
 	TestType  string
+	Trotling  model.Trotling
 }
 
 func executeLighthouseTask(request LighthouseTaskRequest, reportWriter io.Writer) error {
@@ -65,8 +67,17 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 		constants.LightHouseFlagOutput, constants.LightHouseFlagJson,
 		constants.LightHouseEmulatedFormFactor, request.TestType,
 		constants.LightHouseFlagOutputPath, reportsTargetPath + constants.Slash + constants.LighthouseReportFile,
-		request.Url,
 	}
+
+	if request.Trotling.Simulate {
+		options = append(options, constants.LightHouseTrotlingMethod, request.Trotling.Method)
+		options = append(options, constants.LightHouseTrotlingDownloadThroughputKbps, request.Trotling.DownloadKbps)
+		options = append(options, constants.LightHouseTrotlingUploadThroughputKbps, request.Trotling.UploadKbps)
+		options = append(options, constants.LightHouseTrotlingThroughputKbps, request.Trotling.Kbps)
+	}
+
+	options = append(options, request.Url)
+
 	containerConfig := &docker.Config{
 		Image:        provider.Configuration.Lighthouse.Image + constants.Colon + provider.Configuration.Lighthouse.Tag,
 		AttachStdout: true,
