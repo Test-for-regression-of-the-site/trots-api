@@ -78,6 +78,8 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 
 	options = append(options, request.Url)
 
+	log.Printf("Lighthouse arguments: %v", options)
+
 	containerConfig := &docker.Config{
 		Image:        provider.Configuration.Lighthouse.Image + constants.Colon + provider.Configuration.Lighthouse.Tag,
 		AttachStdout: true,
