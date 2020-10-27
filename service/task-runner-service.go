@@ -11,26 +11,35 @@ import (
 	"sync"
 )
 
-func runTasks(sessionId model.SessionIdentifier, testType string, chunkIndex int, chunks [][]string) {
-	urls := chunks[chunkIndex]
+type TaskRunnerRequest struct {
+	SessionId  model.SessionIdentifier
+	TestType   string
+	ChunkIndex int
+	Chunks     [][]string
+	Trotling   model.Trotling
+}
+
+func runTasks(request *TaskRunnerRequest) {
+	urls := request.Chunks[request.ChunkIndex]
 	var waitGroup sync.WaitGroup
 
 	runTask := func(group *sync.WaitGroup, url string) {
 		defer group.Done()
 		testId := primitive.NewObjectID().Hex()
 		buffer := &bytes.Buffer{}
-		request := LighthouseTaskRequest{
-			SessionId: sessionId.Id,
+		lighthouseTaskRequest := LighthouseTaskRequest{
+			SessionId: request.SessionId.Id,
 			TestId:    testId,
 			Url:       url,
-			TestType:  testType,
+			TestType:  request.TestType,
+			Trotling:  request.Trotling,
 		}
-		lighthouseError := executeLighthouseTask(request, buffer)
+		lighthouseError := executeLighthouseTask(lighthouseTaskRequest, buffer)
 		if lighthouseError != nil {
 			log.Printf("Lighthouse error: %s", lighthouseError.Error())
 			return
 		}
-		completeTask(sessionId, testId, url, buffer)
+		completeTask(request.SessionId, testId, url, buffer)
 	}
 
 	for _, url := range urls {
@@ -39,12 +48,18 @@ func runTasks(sessionId model.SessionIdentifier, testType string, chunkIndex int
 	}
 
 	waitGroup.Wait()
-	nextIndex := chunkIndex + 1
-	if nextIndex == len(chunks) {
+	nextIndex := request.ChunkIndex + 1
+	if nextIndex == len(request.Chunks) {
 		Unlock()
 		return
 	}
-	runTasks(sessionId, testType, nextIndex, chunks)
+	runTasks(&TaskRunnerRequest{
+		SessionId:  request.SessionId,
+		TestType:   request.TestType,
+		ChunkIndex: nextIndex,
+		Chunks:     request.Chunks,
+		Trotling:   request.Trotling,
+	})
 }
 
 func completeTask(sessionId model.SessionIdentifier, testId, url string, reportContent *bytes.Buffer) {

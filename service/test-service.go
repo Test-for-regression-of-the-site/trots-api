@@ -22,7 +22,13 @@ func RunTest(request model.TestRequestPayload) {
 		Id:           primitive.NewObjectID().Hex(),
 	}
 	chunks := extensions.Chunks(request.Links, request.Parallel)
-	go runTasks(sessionId, request.TestType, 0, chunks)
+	go runTasks(&TaskRunnerRequest{
+		SessionId:  sessionId,
+		TestType:   request.TestType,
+		ChunkIndex: 0,
+		Chunks:     chunks,
+		Trotling:   request.Trotling,
+	})
 }
 
 func GetTestReport(sessionId, testId string) map[string]interface{} {
