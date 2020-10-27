@@ -74,6 +74,8 @@ func launchLighthouse(reportsTargetPath string, request LighthouseTaskRequest) e
 		options = append(options, constants.LightHouseTrotlingDownloadThroughputKbps, request.Trotling.DownloadKbps)
 		options = append(options, constants.LightHouseTrotlingUploadThroughputKbps, request.Trotling.UploadKbps)
 		options = append(options, constants.LightHouseTrotlingThroughputKbps, request.Trotling.Kbps)
+	} else {
+		options = append(options, constants.LightHouseTrotlingMethod, constants.LightHouseTrotlingProvided)
 	}
 
 	options = append(options, request.Url)

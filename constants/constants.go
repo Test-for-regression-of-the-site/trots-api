@@ -63,4 +63,6 @@ const (
 	LightHouseTrotlingThroughputKbps         = "--throttling.throughputKbps"
 	LightHouseTrotlingDownloadThroughputKbps = "--throttling.downloadThroughputKbps"
 	LightHouseTrotlingUploadThroughputKbps   = "--throttling.uploadThroughputKbps"
+
+	LightHouseTrotlingProvided = "provided"
 )
